@@ -245,6 +245,16 @@ def get_access_token() -> str:
     return resp.json()["data"]["access_token"]
 
 
+def _fetch_folder(user: dict, search_key: str, limit: int) -> list:
+    """Shared helper: fetch messages from any Zoho folder by searchKey."""
+    token = get_access_token()
+    url = f"{BASE_URL}/api/accounts/{user['account_key'].strip()}/messages"
+    headers = {"Authorization": f"Zoho-oauthtoken {token}"}
+    resp = httpx.get(url, headers=headers, params={"searchKey": search_key, "limit": limit})
+    resp.raise_for_status()
+    return resp.json().get("data", [])
+
+
 # ---------------------------------------------------------------------------
 # Login HTML
 # ---------------------------------------------------------------------------
@@ -364,19 +374,32 @@ def get_me(request: Request):
 @app.get("/inbox")
 def get_inbox(request: Request, limit: int = 50):
     user = get_current_user(request)
-    token = get_access_token()
-    url = f"{BASE_URL}/api/accounts/{user['account_key']}/messages"
-    headers = {"Authorization": f"Zoho-oauthtoken {token}"}
-    resp = httpx.get(url, headers=headers, params={"searchKey": "in:inbox", "limit": limit})
-    resp.raise_for_status()
-    return resp.json()["data"]
+    return _fetch_folder(user, "in:inbox", limit)
+
+
+@app.get("/sent")
+def get_sent(request: Request, limit: int = 50):
+    user = get_current_user(request)
+    return _fetch_folder(user, "in:sent", limit)
+
+
+@app.get("/drafts")
+def get_drafts(request: Request, limit: int = 50):
+    user = get_current_user(request)
+    return _fetch_folder(user, "in:drafts", limit)
+
+
+@app.get("/trash")
+def get_trash(request: Request, limit: int = 50):
+    user = get_current_user(request)
+    return _fetch_folder(user, "in:trash", limit)
 
 
 @app.get("/message/{message_id}")
 def get_message_content(request: Request, message_id: str):
     user = get_current_user(request)
     token = get_access_token()
-    url = f"{BASE_URL}/api/accounts/{user['account_key']}/messages/{message_id}/content"
+    url = f"{BASE_URL}/api/accounts/{user['account_key'].strip()}/messages/{message_id}/content"
     headers = {"Authorization": f"Zoho-oauthtoken {token}"}
     resp = httpx.get(url, headers=headers, params={"includeBlockContent": "true"})
     resp.raise_for_status()
@@ -392,7 +415,7 @@ def send_email(request: Request, req: SendRequest):
     content = sanitize_input(req.content, max_length=10000)
     if not is_valid_email(to_addr):
         raise HTTPException(status_code=400, detail="Invalid recipient email")
-    url = f"{BASE_URL}/api/accounts/{user['account_key']}/messages"
+    url = f"{BASE_URL}/api/accounts/{user['account_key'].strip()}/messages"
     headers = {"Authorization": f"Zoho-oauthtoken {token}"}
     payload = {"fromAddress": user["from_address"], "toAddress": to_addr, "subject": subject, "content": content, "mailFormat": "plaintext"}
     resp = httpx.post(url, headers=headers, json=payload)
@@ -405,7 +428,7 @@ def send_email(request: Request, req: SendRequest):
 def delete_message(request: Request, message_id: str):
     user = get_current_user(request)
     token = get_access_token()
-    url = f"{BASE_URL}/api/accounts/{user['account_key']}/messages/{message_id}"
+    url = f"{BASE_URL}/api/accounts/{user['account_key'].strip()}/messages/{message_id}"
     headers = {"Authorization": f"Zoho-oauthtoken {token}"}
     resp = httpx.delete(url, headers=headers)
     resp.raise_for_status()
@@ -421,7 +444,7 @@ def reply_to_message(request: Request, message_id: str, req: SendRequest):
     content = sanitize_input(req.content, max_length=10000)
     if not is_valid_email(to_addr):
         raise HTTPException(status_code=400, detail="Invalid recipient email")
-    url = f"{BASE_URL}/api/accounts/{user['account_key']}/messages/{message_id}"
+    url = f"{BASE_URL}/api/accounts/{user['account_key'].strip()}/messages/{message_id}"
     headers = {"Authorization": f"Zoho-oauthtoken {token}"}
     payload = {"action": "reply", "fromAddress": user["from_address"], "toAddress": to_addr, "subject": subject, "content": content, "mailFormat": "plaintext"}
     resp = httpx.post(url, headers=headers, json=payload)
@@ -440,7 +463,7 @@ def forward_message(request: Request, req: ForwardRequest):
     original_content = sanitize_input(req.original_content, max_length=8000)
     if not is_valid_email(to_addr):
         raise HTTPException(status_code=400, detail="Invalid recipient email")
-    url = f"{BASE_URL}/api/accounts/{user['account_key']}/messages"
+    url = f"{BASE_URL}/api/accounts/{user['account_key'].strip()}/messages"
     headers = {"Authorization": f"Zoho-oauthtoken {token}"}
     full_content = f"{content}\n\n--- Forwarded message ---\n{original_content}"
     payload = {"fromAddress": user["from_address"], "toAddress": to_addr, "subject": subject, "content": full_content, "mailFormat": "plaintext"}
@@ -468,8 +491,8 @@ def admin_page():
 <div class="form-group"><label>Mail360 Account Key</label><input type="text" id="account_key" required></div>
 <div class="form-group"><label>Email Address</label><input type="email" id="email" required placeholder="john@manitec.pw"></div>
 <button type="submit">Create User</button></form>
-<a href="/" class="back-link">← Back to Mail</a></div>
-<script>document.getElementById('addUserForm').addEventListener('submit',async(e)=>{e.preventDefault();const fd=new FormData();fd.append('username',document.getElementById('username').value);fd.append('password',document.getElementById('password').value);fd.append('account_key',document.getElementById('account_key').value);fd.append('email',document.getElementById('email').value);document.getElementById('success').style.display='none';document.getElementById('error').style.display='none';try{const r=await fetch('/admin/add-user',{method:'POST',body:fd});if(r.ok){document.getElementById('success').style.display='block';document.getElementById('addUserForm').reset();}else{const t=await r.text();document.getElementById('error').textContent='Error: '+t;document.getElementById('error').style.display='block';}}catch(err){document.getElementById('error').textContent='Error: '+err.message;document.getElementById('error').style.display='block';}});</script>
+<a href="/" class="back-link">\u2190 Back to Mail</a></div>
+<script>document.getElementById('addUserForm').addEventListener('submit',async(e)=>{e.preventDefault();const fd=new FormData();fd.append('username',document.getElementById('username').value);fd.append('password',document.getElementById('password').value);fd.append('account_key',document.getElementById('account_key').value.trim());fd.append('email',document.getElementById('email').value);document.getElementById('success').style.display='none';document.getElementById('error').style.display='none';try{const r=await fetch('/admin/add-user',{method:'POST',body:fd});if(r.ok){document.getElementById('success').style.display='block';document.getElementById('addUserForm').reset();}else{const t=await r.text();document.getElementById('error').textContent='Error: '+t;document.getElementById('error').style.display='block';}}catch(err){document.getElementById('error').textContent='Error: '+err.message;document.getElementById('error').style.display='block';}});</script>
 </body></html>""")
 
 
@@ -485,7 +508,7 @@ def add_user(
     if not is_admin(current):
         raise HTTPException(status_code=403, detail="Admin only")
     username_clean = sanitize_input(username, max_length=64).lower()
-    account_key_clean = sanitize_input(account_key, max_length=128)
+    account_key_clean = sanitize_input(account_key, max_length=128).strip()
     email_clean = sanitize_input(email, max_length=255)
     if not is_valid_email(email_clean):
         raise HTTPException(status_code=400, detail="Invalid email address")
@@ -525,7 +548,7 @@ def settings_page():
 <div class="form-group"><label>New Password</label><input type="password" id="new_password" required autocomplete="new-password"></div>
 <div class="form-group"><label>Confirm New Password</label><input type="password" id="confirm_password" required autocomplete="new-password"></div>
 <button type="submit">Change Password</button></form>
-<a href="/" class="back-link">← Back to Mail</a></div>
+<a href="/" class="back-link">\u2190 Back to Mail</a></div>
 <script>document.getElementById('changePasswordForm').addEventListener('submit',async(e)=>{e.preventDefault();const np=document.getElementById('new_password').value;const cp=document.getElementById('confirm_password').value;document.getElementById('success').style.display='none';document.getElementById('error').style.display='none';if(np!==cp){document.getElementById('error').textContent='New passwords do not match';document.getElementById('error').style.display='block';return;}const fd=new FormData();fd.append('current_password',document.getElementById('current_password').value);fd.append('new_password',np);try{const r=await fetch('/settings/change-password',{method:'POST',body:fd});if(r.ok){document.getElementById('success').style.display='block';document.getElementById('changePasswordForm').reset();setTimeout(()=>{window.location.href='/logout';},2000);}else{const t=await r.text();document.getElementById('error').textContent='Error: '+t;document.getElementById('error').style.display='block';}}catch(err){document.getElementById('error').textContent='Error: '+err.message;document.getElementById('error').style.display='block';}});</script>
 </body></html>""")
 
