@@ -32,7 +32,7 @@
 html{height:100%;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 body{height:100%;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;background:var(--bg);color:var(--text);overflow:hidden}
 
-/* ---- Layout ---- */
+/* ---- Desktop layout (>= 768px) ---- */
 #app{display:grid;grid-template-columns:220px 320px 1fr;grid-template-rows:100vh;height:100vh}
 #sidebar{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
 #list-pane{background:var(--surface2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
@@ -71,7 +71,7 @@ body{height:100%;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI'
 .sb-action-btn.danger:hover{color:var(--red);border-color:var(--red)}
 
 /* ---- List pane ---- */
-.lp-header{padding:16px 16px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:between;gap:8px}
+.lp-header{padding:16px 16px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
 .lp-title{font-size:15px;font-weight:700;color:var(--text);flex:1}
 .lp-count{font-size:12px;color:var(--muted)}
 .lp-toolbar{display:flex;align-items:center;gap:6px;padding:10px 12px;border-bottom:1px solid var(--border)}
@@ -84,6 +84,7 @@ body{height:100%;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI'
 #message-list{flex:1;overflow-y:auto;padding:4px 0}
 .msg-item{padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background var(--trans);position:relative}
 .msg-item:hover{background:rgba(255,255,255,0.03)}
+.msg-item:active{background:var(--accentbg)}
 .msg-item.selected{background:var(--accentbg)}
 .msg-item.unread .msg-from{font-weight:700;color:var(--text)}
 .msg-item.unread::before{content:'';position:absolute;left:4px;top:50%;transform:translateY(-50%);width:4px;height:4px;border-radius:50%;background:var(--accent)}
@@ -110,7 +111,7 @@ body{height:100%;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI'
 .rp-meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .rp-meta-badge{font-size:11px;background:var(--surface3);border:1px solid var(--border);border-radius:99px;padding:3px 10px;color:var(--muted)}
 .rp-meta-badge b{color:var(--text)}
-.rp-actions{padding:10px 24px;border-bottom:1px solid var(--border);display:flex;gap:8px;flex-shrink:0}
+.rp-actions{padding:10px 24px;border-bottom:1px solid var(--border);display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap}
 .rp-btn{padding:6px 14px;border-radius:var(--radius);font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface3);color:var(--muted);transition:color var(--trans),border-color var(--trans),background var(--trans);display:flex;align-items:center;gap:6px}
 .rp-btn:hover{color:var(--text);border-color:var(--border2)}
 .rp-btn.primary{background:var(--accentbg);border-color:var(--accent);color:var(--accent)}
@@ -134,14 +135,14 @@ body{height:100%;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI'
 .cm-label{font-size:12px;color:var(--muted);min-width:52px;font-weight:500}
 .cm-field input{flex:1;background:none;border:none;padding:10px 8px;font-size:13px;color:var(--text);outline:none}
 .cm-field input::placeholder{color:var(--faint)}
-.cm-body{flex:1;padding:14px 18px;min-height:140px}
-.cm-body textarea{width:100%;height:100%;min-height:120px;background:none;border:none;font-size:13px;color:var(--text);resize:none;outline:none;line-height:1.7;font-family:inherit}
+.cm-body{flex:1;padding:14px 18px;min-height:140px;overflow:hidden;display:flex;flex-direction:column}
+.cm-body textarea{width:100%;flex:1;min-height:120px;background:none;border:none;font-size:13px;color:var(--text);resize:none;outline:none;line-height:1.7;font-family:inherit}
 .cm-body textarea::placeholder{color:var(--faint)}
-.cm-footer{padding:12px 18px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px}
-.send-btn{padding:8px 18px;background:var(--accent);color:#0d0d0f;border:none;border-radius:var(--radius);font-size:13px;font-weight:700;cursor:pointer;transition:background var(--trans)}
+.cm-footer{padding:12px 18px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.send-btn{padding:8px 18px;background:var(--accent);color:#0d0d0f;border:none;border-radius:var(--radius);font-size:13px;font-weight:700;cursor:pointer;transition:background var(--trans);min-height:44px}
 .send-btn:hover{background:var(--accent2)}
 .send-btn:disabled{opacity:0.5;cursor:not-allowed}
-.cancel-btn{padding:8px 14px;background:none;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;color:var(--muted);cursor:pointer;transition:color var(--trans),border-color var(--trans)}
+.cancel-btn{padding:8px 14px;background:none;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;color:var(--muted);cursor:pointer;transition:color var(--trans),border-color var(--trans);min-height:44px}
 .cancel-btn:hover{color:var(--text);border-color:var(--border2)}
 .cm-status{font-size:12px;margin-left:auto}
 .cm-status.ok{color:var(--green)}
@@ -163,19 +164,173 @@ body{height:100%;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI'
 ::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:4px}
 ::-webkit-scrollbar-thumb:hover{background:var(--border2)}
 
-/* ---- Mobile ---- */
-@media(max-width:900px){
-  #app{grid-template-columns:1fr}
-  #list-pane,#read-pane{display:none}
-  #sidebar{display:flex;height:100vh}
-  #app.view-list #sidebar{display:none}
-  #app.view-list #list-pane{display:flex}
-  #app.view-read #sidebar{display:none}
-  #app.view-read #read-pane{display:flex}
-  .mobile-back{display:flex!important}
+/* ---- Mobile back bar (hidden on desktop) ---- */
+.mobile-back{display:none}
+
+/* ============================================================
+   MOBILE  (< 768px) — single-pane stacked navigation
+   ============================================================ */
+@media (max-width: 767px) {
+  /* Let body scroll within each pane, not the outer shell */
+  body { overflow: hidden; }
+
+  /* Collapse the grid — each pane fills the screen */
+  #app {
+    display: block;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  #sidebar,
+  #list-pane,
+  #read-pane {
+    position: absolute;
+    inset: 0;
+    height: 100dvh;
+    width: 100%;
+    display: none;
+    flex-direction: column;
+    border-right: none;
+  }
+
+  /* Which pane is visible is controlled by a class on #app */
+  #app.view-sidebar #sidebar { display: flex; }
+  #app.view-list    #list-pane { display: flex; }
+  #app.view-read    #read-pane { display: flex; }
+
+  /* Default: show list pane */
+  #app:not(.view-sidebar):not(.view-list):not(.view-read) #list-pane { display: flex; }
+
+  /* Mobile back bar */
+  .mobile-back {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 16px;
+    height: 48px;
+    min-height: 48px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+    font-size: 13px;
+    color: var(--muted);
+    cursor: pointer;
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mobile-back:active { background: var(--surface3); }
+
+  /* Mobile top bar in list pane: hamburger + folder title + compose */
+  .mobile-topbar {
+    display: flex;
+    align-items: center;
+    height: 52px;
+    padding: 0 12px;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+    flex-shrink: 0;
+  }
+  .mobile-topbar .mob-icon-btn {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    border-radius: var(--radius);
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mobile-topbar .mob-icon-btn:active { background: var(--surface3); }
+  .mobile-topbar .mob-folder-title {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  /* Remove the desktop lp-header since topbar replaces it on mobile */
+  .lp-header { display: none; }
+
+  /* Bigger touch targets for message rows */
+  .msg-item { padding: 14px 16px; min-height: 72px; }
+  .msg-star { opacity: 1; }
+
+  /* Sidebar: make nav items taller */
+  .sb-nav a { padding: 13px 18px; font-size: 14px; }
+
+  /* Reading pane: subject wraps on mobile */
+  .rp-subject { font-size: 16px; }
+  .rp-header { padding: 14px 16px 12px; }
+  .rp-actions { padding: 10px 16px; }
+  .rp-body { padding: 16px; }
+  .rp-btn { min-height: 44px; padding: 0 14px; }
+
+  /* Compose modal: full-screen on mobile */
+  .modal-overlay { padding: 0; align-items: flex-end; justify-content: center; }
+  .compose-modal {
+    max-width: 100%;
+    width: 100%;
+    max-height: 92dvh;
+    border-radius: var(--radius2) var(--radius2) 0 0;
+    border-bottom: none;
+  }
+  .compose-modal.full { max-height: 100dvh; border-radius: 0; }
+  .cm-field input { font-size: 16px; /* prevent iOS zoom */ }
+  .cm-body textarea { font-size: 16px; }
+
+  /* Compose FAB: floating button on list/read panes */
+  .compose-fab {
+    display: flex;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #0d0d0f;
+    border: none;
+    font-size: 24px;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    z-index: 500;
+    transition: background var(--trans), transform var(--trans);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .compose-fab:active { background: var(--accent2); transform: scale(0.93); }
+
+  /* Hide desktop compose button — replaced by FAB */
+  .compose-btn { display: none; }
 }
-.mobile-back{display:none;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer;padding:8px 16px;border-bottom:1px solid var(--border)}
-.mobile-back:hover{color:var(--text)}
+
+/* ============================================================
+   TABLET  (768px – 900px) — sidebar collapses, 2-col list+read
+   ============================================================ */
+@media (min-width: 768px) and (max-width: 900px) {
+  #app { grid-template-columns: 240px 1fr; }
+  #list-pane { display: none !important; }
+  #read-pane { display: flex !important; }
+  #app.view-list #list-pane { display: flex !important; }
+  #app.view-list #read-pane { display: none !important; }
+  .mobile-back { display: flex; }
+  .lp-header { display: flex; }
+  .mobile-topbar { display: none; }
+  .compose-fab { display: none; }
+}
+
+@media (min-width: 901px) {
+  .mobile-topbar { display: none; }
+  .compose-fab { display: none; }
+  .mobile-back { display: none !important; }
+  #sidebar,#list-pane,#read-pane { display: flex !important; position: static; }
+  .lp-header { display: flex; }
+}
 </style>
 </head>
 <body>
@@ -201,7 +356,7 @@ body{height:100%;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI'
 
   <div class="sb-search">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    <input type="text" placeholder="Search mail\u2026" id="globalSearch" oninput="filterMessages(this.value)">
+    <input type="text" placeholder="Search mail…" id="globalSearch" oninput="filterMessages(this.value)">
   </div>
 
   <nav class="sb-nav" id="sidebar-nav">
@@ -255,16 +410,25 @@ body{height:100%;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI'
 
 <!-- LIST PANE -->
 <section id="list-pane">
-  <div class="mobile-back" onclick="goBack()">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-    Menu
+  <!-- Mobile top bar: hamburger | folder title | refresh -->
+  <div class="mobile-topbar">
+    <button class="mob-icon-btn" aria-label="Open folders" onclick="setView('view-sidebar')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <span class="mob-folder-title" id="mob-folder-title">Inbox</span>
+    <button class="mob-icon-btn" aria-label="Refresh" onclick="refreshFolder()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+    </button>
   </div>
+
+  <!-- Desktop list header -->
   <div class="lp-header">
     <span class="lp-title" id="lp-title">Inbox</span>
     <span class="lp-count" id="lp-count"></span>
   </div>
+
   <div class="lp-toolbar">
-    <input class="lp-filter" type="text" placeholder="Filter in folder\u2026" id="folderSearch" oninput="filterMessages(this.value)">
+    <input class="lp-filter" type="text" placeholder="Filter in folder…" id="folderSearch" oninput="filterMessages(this.value)">
     <button class="icon-btn" title="Refresh" onclick="refreshFolder()">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
     </button>
@@ -283,10 +447,12 @@ body{height:100%;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI'
 
 <!-- READING PANE -->
 <section id="read-pane">
-  <div class="mobile-back" onclick="goBackList()" id="mobile-back-msg" style="display:none">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+  <!-- Mobile back to list -->
+  <div class="mobile-back" id="mobile-back-msg" onclick="setView('view-list')">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
     Back
   </div>
+
   <div class="rp-empty" id="rp-empty">
     <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M22 12h-6l-2 3H10l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
     <p>Select a message</p>
@@ -320,6 +486,11 @@ body{height:100%;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI'
 
 </div>
 
+<!-- Floating compose button (mobile only) -->
+<button class="compose-fab" onclick="openCompose()" aria-label="Compose">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+</button>
+
 <!-- COMPOSE MODAL -->
 <div class="modal-overlay" id="composeOverlay">
   <div class="compose-modal" id="composeModal">
@@ -335,7 +506,7 @@ body{height:100%;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI'
     <div class="cm-fields">
       <div class="cm-field">
         <span class="cm-label">To</span>
-        <input type="email" id="cm-to" placeholder="recipient@example.com">
+        <input type="email" id="cm-to" placeholder="recipient@example.com" autocomplete="email">
       </div>
       <div class="cm-field">
         <span class="cm-label">Subject</span>
@@ -343,7 +514,7 @@ body{height:100%;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI'
       </div>
     </div>
     <div class="cm-body">
-      <textarea id="cm-body" placeholder="Write your message\u2026"></textarea>
+      <textarea id="cm-body" placeholder="Write your message…"></textarea>
     </div>
     <div class="cm-footer">
       <button class="send-btn" id="send-btn" onclick="sendEmail()">
@@ -368,6 +539,14 @@ try { stars = JSON.parse(sessionStorage.getItem('stars') || '{}'); } catch {}
 const FOLDER_ROUTES = {inbox:'/inbox',allmail:'/allmail',sent:'/sent',drafts:'/drafts',trash:'/trash'};
 const FOLDER_TITLES = {inbox:'Inbox',allmail:'All Mail',sent:'Sent',drafts:'Drafts',trash:'Trash'};
 
+function isMobile() { return window.innerWidth < 768; }
+
+function setView(view) {
+  const app = document.getElementById('app');
+  app.classList.remove('view-sidebar','view-list','view-read');
+  if (view) app.classList.add(view);
+}
+
 async function init() {
   try {
     const me = await fetch('/me').then(r => r.json());
@@ -376,26 +555,27 @@ async function init() {
     document.getElementById('sb-avatar').textContent = me.username[0].toUpperCase();
     if (me.is_admin) document.getElementById('admin-link').style.display = '';
   } catch(e) {}
+  setView('view-list');
   await loadFolder('inbox');
 }
 
 function setFolder(folder) {
-  if (currentFolder === folder) { refreshFolder(); return; }
+  if (currentFolder === folder) { refreshFolder(); if (isMobile()) setView('view-list'); return; }
   currentFolder = folder;
-  document.getElementById('lp-title').textContent = FOLDER_TITLES[folder] || folder;
+  const title = FOLDER_TITLES[folder] || folder;
+  document.getElementById('lp-title').textContent = title;
+  document.getElementById('mob-folder-title').textContent = title;
   document.querySelectorAll('.sb-nav a[data-folder]').forEach(a => {
     a.classList.toggle('active', a.dataset.folder === folder);
   });
   document.getElementById('rp-empty').style.display = '';
   document.getElementById('rp-content').style.display = 'none';
   currentMessage = null;
-  document.getElementById('app').className = 'view-list';
+  if (isMobile()) setView('view-list');
   loadFolder(folder);
 }
 
-function refreshFolder() {
-  loadFolder(currentFolder);
-}
+function refreshFolder() { loadFolder(currentFolder); }
 
 async function loadFolder(folder) {
   const route = FOLDER_ROUTES[folder] || '/inbox';
@@ -423,8 +603,6 @@ async function loadFolder(folder) {
     showEmptyState('Could not load ' + (FOLDER_TITLES[folder]||folder).toLowerCase() + ' \u2014 ' + e.message);
   }
 }
-
-function loadInbox() { loadFolder('inbox'); }
 
 function setLoading(on) {
   document.getElementById('list-loading').style.display = on ? '' : 'none';
@@ -499,7 +677,6 @@ function escHtml(s) {
 function formatDate(ts) {
   if (!ts && ts !== 0) return '';
   try {
-    // Coerce numeric strings (Zoho returns ms timestamps as strings)
     const ms = typeof ts === 'number' ? ts : /^\d+$/.test(String(ts)) ? Number(ts) : ts;
     const d = new Date(ms);
     if (isNaN(d.getTime())) return '';
@@ -529,8 +706,7 @@ async function openMessage(m) {
   document.getElementById('rp-date').textContent = formatDate(m.date);
   document.getElementById('rp-body').innerHTML = '<div class="loading-bar"></div>';
 
-  document.getElementById('app').className = 'view-read';
-  document.getElementById('mobile-back-msg').style.display = '';
+  if (isMobile()) setView('view-read');
 
   try {
     const data = await fetch(`/message/${m.id}`).then(r => r.json());
@@ -647,6 +823,7 @@ async function deleteCurrentMessage() {
       document.getElementById('rp-empty').style.display = '';
       document.getElementById('rp-content').style.display = 'none';
       renderList();
+      if (isMobile()) setView('view-list');
       showToast('Deleted', 'ok');
     } else {
       showToast('Delete failed', 'err');
@@ -669,9 +846,6 @@ function showToast(msg, type) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => { t.className = type || ''; }, 2800);
 }
-
-function goBack() { document.getElementById('app').className = ''; }
-function goBackList() { document.getElementById('app').className = 'view-list'; }
 
 document.addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
