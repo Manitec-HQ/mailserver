@@ -243,7 +243,7 @@ body{height:100%;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI'
       </div>
     </div>
     <div class="sb-actions">
-      <button class="sb-action-btn" onclick="loadInbox()">↻ Refresh</button>
+      <button class="sb-action-btn" onclick="refreshFolder()">↻ Refresh</button>
       <a href="/logout" class="sb-action-btn danger">Sign out</a>
     </div>
   </div>
@@ -261,7 +261,7 @@ body{height:100%;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI'
   </div>
   <div class="lp-toolbar">
     <input class="lp-filter" type="text" placeholder="Filter in folder…" id="folderSearch" oninput="filterMessages(this.value)">
-    <button class="icon-btn" title="Refresh" onclick="loadInbox()">
+    <button class="icon-btn" title="Refresh" onclick="refreshFolder()">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
     </button>
   </div>
@@ -361,6 +361,10 @@ let composeMode = 'new';
 let stars = {};
 try { stars = JSON.parse(sessionStorage.getItem('stars') || '{}'); } catch {}
 
+// Map folder name → backend route
+const FOLDER_ROUTES = {inbox:'/inbox',sent:'/sent',drafts:'/drafts',trash:'/trash'};
+const FOLDER_TITLES = {inbox:'Inbox',sent:'Sent',drafts:'Drafts',trash:'Trash'};
+
 async function init() {
   try {
     const me = await fetch('/me').then(r => r.json());
@@ -369,30 +373,32 @@ async function init() {
     document.getElementById('sb-avatar').textContent = me.username[0].toUpperCase();
     if (me.is_admin) document.getElementById('admin-link').style.display = '';
   } catch(e) {}
-  await loadInbox();
+  await loadFolder('inbox');
 }
 
 function setFolder(folder) {
+  if (currentFolder === folder) { refreshFolder(); return; }
   currentFolder = folder;
-  const titles = {inbox:'Inbox',sent:'Sent',drafts:'Drafts',trash:'Trash'};
-  document.getElementById('lp-title').textContent = titles[folder];
+  document.getElementById('lp-title').textContent = FOLDER_TITLES[folder] || folder;
   document.querySelectorAll('.sb-nav a[data-folder]').forEach(a => {
     a.classList.toggle('active', a.dataset.folder === folder);
   });
   document.getElementById('rp-empty').style.display = '';
   document.getElementById('rp-content').style.display = 'none';
   currentMessage = null;
-  if (folder === 'inbox') { loadInbox(); return; }
-  messages = [];
-  renderList();
-  showToast('Only inbox is synced with Zoho', 'ok');
   document.getElementById('app').className = 'view-list';
+  loadFolder(folder);
 }
 
-async function loadInbox() {
+function refreshFolder() {
+  loadFolder(currentFolder);
+}
+
+async function loadFolder(folder) {
+  const route = FOLDER_ROUTES[folder] || '/inbox';
   setLoading(true);
   try {
-    const data = await fetch('/inbox?limit=50').then(r => {
+    const data = await fetch(route + '?limit=50').then(r => {
       if (!r.ok) throw new Error(r.status);
       return r.json();
     });
@@ -411,9 +417,12 @@ async function loadInbox() {
     setLoading(false);
   } catch(e) {
     setLoading(false);
-    showEmptyState('Could not load inbox — ' + e.message);
+    showEmptyState('Could not load ' + (FOLDER_TITLES[folder]||folder).toLowerCase() + ' — ' + e.message);
   }
 }
+
+// kept for sidebar refresh button backwards compat
+function loadInbox() { loadFolder('inbox'); }
 
 function setLoading(on) {
   document.getElementById('list-loading').style.display = on ? '' : 'none';
