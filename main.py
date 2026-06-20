@@ -245,8 +245,6 @@ def get_access_token() -> str:
     if _token_cache["access_token"] and now < _token_cache["expires_at"]:
         return _token_cache["access_token"]
 
-    # Read creds fresh from env every time so Render env changes take effect
-    # without needing a full redeploy
     client_id = os.getenv("CLIENT_ID", "").strip()
     client_secret = os.getenv("CLIENT_SECRET", "").strip()
     refresh_token = os.getenv("REFRESH_TOKEN", "").strip()
@@ -264,21 +262,30 @@ def get_access_token() -> str:
     resp.raise_for_status()
     token = resp.json()["data"]["access_token"]
 
-    # Cache for 55 minutes (Zoho tokens last 60 min)
     _token_cache["access_token"] = token
     _token_cache["expires_at"] = now + 55 * 60
 
     return token
 
 
+def _sort_key(msg: dict) -> int:
+    """Return receivedTime as int for sorting; fall back to sentDateInGMT, then 0."""
+    ts = msg.get("receivedTime") or msg.get("sentDateInGMT") or 0
+    try:
+        return int(ts)
+    except (TypeError, ValueError):
+        return 0
+
+
 def _fetch_folder(user: dict, search_key: str, limit: int) -> list:
-    """Shared helper: fetch messages from any Zoho folder by searchKey."""
+    """Shared helper: fetch messages from any Zoho folder by searchKey, sorted newest-first."""
     token = get_access_token()
     url = f"{BASE_URL}/api/accounts/{user['account_key'].strip()}/messages"
     headers = {"Authorization": f"Zoho-oauthtoken {token}"}
     resp = httpx.get(url, headers=headers, params={"searchKey": search_key, "limit": limit})
     resp.raise_for_status()
-    return resp.json().get("data", [])
+    data = resp.json().get("data", [])
+    return sorted(data, key=_sort_key, reverse=True)
 
 
 # ---------------------------------------------------------------------------
@@ -419,6 +426,12 @@ def get_drafts(request: Request, limit: int = 50):
 def get_trash(request: Request, limit: int = 50):
     user = get_current_user(request)
     return _fetch_folder(user, "in:trash", limit)
+
+
+@app.get("/allmail")
+def get_allmail(request: Request, limit: int = 50):
+    user = get_current_user(request)
+    return _fetch_folder(user, "in:anywhere", limit)
 
 
 @app.get("/message/{message_id}")

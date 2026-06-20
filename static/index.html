@@ -201,7 +201,7 @@ body{height:100%;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI'
 
   <div class="sb-search">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    <input type="text" placeholder="Search mail…" id="globalSearch" oninput="filterMessages(this.value)">
+    <input type="text" placeholder="Search mail\u2026" id="globalSearch" oninput="filterMessages(this.value)">
   </div>
 
   <nav class="sb-nav" id="sidebar-nav">
@@ -210,6 +210,10 @@ body{height:100%;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI'
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 12h-6l-2 3H10l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
       Inbox
       <span class="badge" id="unread-badge" style="display:none">0</span>
+    </a>
+    <a onclick="setFolder('allmail')" id="nav-allmail" data-folder="allmail">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/></svg>
+      All Mail
     </a>
     <a onclick="setFolder('sent')" id="nav-sent" data-folder="sent">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
@@ -260,7 +264,7 @@ body{height:100%;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI'
     <span class="lp-count" id="lp-count"></span>
   </div>
   <div class="lp-toolbar">
-    <input class="lp-filter" type="text" placeholder="Filter in folder…" id="folderSearch" oninput="filterMessages(this.value)">
+    <input class="lp-filter" type="text" placeholder="Filter in folder\u2026" id="folderSearch" oninput="filterMessages(this.value)">
     <button class="icon-btn" title="Refresh" onclick="refreshFolder()">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
     </button>
@@ -339,7 +343,7 @@ body{height:100%;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI'
       </div>
     </div>
     <div class="cm-body">
-      <textarea id="cm-body" placeholder="Write your message…"></textarea>
+      <textarea id="cm-body" placeholder="Write your message\u2026"></textarea>
     </div>
     <div class="cm-footer">
       <button class="send-btn" id="send-btn" onclick="sendEmail()">
@@ -361,9 +365,8 @@ let composeMode = 'new';
 let stars = {};
 try { stars = JSON.parse(sessionStorage.getItem('stars') || '{}'); } catch {}
 
-// Map folder name → backend route
-const FOLDER_ROUTES = {inbox:'/inbox',sent:'/sent',drafts:'/drafts',trash:'/trash'};
-const FOLDER_TITLES = {inbox:'Inbox',sent:'Sent',drafts:'Drafts',trash:'Trash'};
+const FOLDER_ROUTES = {inbox:'/inbox',allmail:'/allmail',sent:'/sent',drafts:'/drafts',trash:'/trash'};
+const FOLDER_TITLES = {inbox:'Inbox',allmail:'All Mail',sent:'Sent',drafts:'Drafts',trash:'Trash'};
 
 async function init() {
   try {
@@ -404,7 +407,7 @@ async function loadFolder(folder) {
     });
     messages = (data || []).map(m => ({
       id: m.messageId,
-      from: m.fromAddress || m.sender || '—',
+      from: m.fromAddress || m.sender || '\u2014',
       to: m.toAddress || '',
       subject: m.subject || '(no subject)',
       preview: m.summary || '',
@@ -417,11 +420,10 @@ async function loadFolder(folder) {
     setLoading(false);
   } catch(e) {
     setLoading(false);
-    showEmptyState('Could not load ' + (FOLDER_TITLES[folder]||folder).toLowerCase() + ' — ' + e.message);
+    showEmptyState('Could not load ' + (FOLDER_TITLES[folder]||folder).toLowerCase() + ' \u2014 ' + e.message);
   }
 }
 
-// kept for sidebar refresh button backwards compat
 function loadInbox() { loadFolder('inbox'); }
 
 function setLoading(on) {
@@ -478,7 +480,7 @@ function renderList() {
       </div>
       <div class="msg-subject">${escHtml(m.subject)}</div>
       <div class="msg-preview">${escHtml(m.preview)}</div>
-      <span class="msg-star ${stars[m.id] ? 'starred' : ''}" title="Star" onclick="toggleStar(event,'${m.id}')">★</span>
+      <span class="msg-star ${stars[m.id] ? 'starred' : ''}" title="Star" onclick="toggleStar(event,'${m.id}')">\u2605</span>
     `;
     el.onclick = () => openMessage(m);
     list.appendChild(el);
@@ -495,9 +497,12 @@ function escHtml(s) {
 }
 
 function formatDate(ts) {
-  if (!ts) return '';
+  if (!ts && ts !== 0) return '';
   try {
-    const d = typeof ts === 'number' ? new Date(ts) : new Date(ts);
+    // Coerce numeric strings (Zoho returns ms timestamps as strings)
+    const ms = typeof ts === 'number' ? ts : /^\d+$/.test(String(ts)) ? Number(ts) : ts;
+    const d = new Date(ms);
+    if (isNaN(d.getTime())) return '';
     const now = new Date();
     const diff = now - d;
     if (diff < 86400000 && now.getDate() === d.getDate())
@@ -594,7 +599,7 @@ async function sendEmail() {
   }
 
   btn.disabled = true;
-  document.getElementById('send-btn-text').textContent = 'Sending…';
+  document.getElementById('send-btn-text').textContent = 'Sending\u2026';
   status.textContent = '';
 
   try {
@@ -615,7 +620,7 @@ async function sendEmail() {
     });
 
     if (resp.ok) {
-      showToast('Message sent ✓', 'ok');
+      showToast('Message sent \u2713', 'ok');
       closeCompose();
     } else {
       const t = await resp.text();
