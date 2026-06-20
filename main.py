@@ -134,8 +134,23 @@ def seed_users_from_env():
     conn.close()
 
 
+def migrate_trim_account_keys():
+    """One-time migration: strip any leading/trailing whitespace from all account_key values."""
+    conn = get_db()
+    try:
+        result = conn.execute("UPDATE users SET account_key = TRIM(account_key) WHERE account_key != TRIM(account_key)")
+        if result.rowcount:
+            print(f"\u2705 Trimmed account_key whitespace on {result.rowcount} user(s)")
+    except Exception as e:
+        print(f"\u26a0\ufe0f  migrate_trim_account_keys failed: {e}")
+    finally:
+        conn.commit()
+        conn.close()
+
+
 init_db()
 seed_users_from_env()
+migrate_trim_account_keys()
 
 # ---------------------------------------------------------------------------
 # Middleware
@@ -631,7 +646,7 @@ def admin_page():
 <div class="form-group"><label>Email Address</label><input type="email" id="email" required placeholder="john@manitec.pw"></div>
 <button type="submit">Create User</button></form>
 <a href="/" class="back-link">\u2190 Back to Mail</a></div>
-<script>document.getElementById('addUserForm').addEventListener('submit',async(e)=>{e.preventDefault();const fd=new FormData();fd.append('username',document.getElementById('username').value);fd.append('password',document.getElementById('password').value);fd.append('account_key',document.getElementById('account_key').value.trim());fd.append('email',document.getElementById('email').value);document.getElementById('success').style.display='none';document.getElementById('error').style.display='none';try{const r=await fetch('/admin/add-user',{method:'POST',body:fd});if(r.ok){document.getElementById('success').style.display='block';document.getElementById('addUserForm').reset();}else{const t=await r.text();document.getElementById('error').textContent='Error: '+t;document.getElementById('error').style.display='block';}}catch(err){document.getElementById('error').textContent='Error: '+err.message;document.getElementById('error').style.display='block';}});</script>
+<script>document.getElementById('addUserForm').addEventListener('submit',async(e)=>{e.preventDefault();const fd=new FormData();fd.append('username',document.getElementById('username').value.trim());fd.append('password',document.getElementById('password').value);fd.append('account_key',document.getElementById('account_key').value.trim());fd.append('email',document.getElementById('email').value.trim());document.getElementById('success').style.display='none';document.getElementById('error').style.display='none';try{const r=await fetch('/admin/add-user',{method:'POST',body:fd});if(r.ok){document.getElementById('success').style.display='block';document.getElementById('addUserForm').reset();}else{const t=await r.text();document.getElementById('error').textContent='Error: '+t;document.getElementById('error').style.display='block';}}catch(err){document.getElementById('error').textContent='Error: '+err.message;document.getElementById('error').style.display='block';}});</script>
 </body></html>""")
 
 
@@ -646,9 +661,9 @@ def add_user(
     current = get_current_user(request)
     if not is_admin(current):
         raise HTTPException(status_code=403, detail="Admin only")
-    username_clean = sanitize_input(username, max_length=64).lower()
+    username_clean = sanitize_input(username, max_length=64).strip().lower()
     account_key_clean = sanitize_input(account_key, max_length=128).strip()
-    email_clean = sanitize_input(email, max_length=255)
+    email_clean = sanitize_input(email, max_length=255).strip()
     if not is_valid_email(email_clean):
         raise HTTPException(status_code=400, detail="Invalid email address")
     ok, msg = is_strong_password(password)
