@@ -1,679 +1,676 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Manitec Mail</title>
-    <link rel="manifest" href="/static/manifest.json">
-    <meta name="theme-color" content="#0d1117">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Manitec Mail">
-    <meta name="mobile-web-app-capable" content="yes">
-    <link rel="apple-touch-icon" sizes="180x180" href="/static/icons/icon-192x192.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="/static/icons/icon-192x192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="/static/icons/icon-512x512.png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manitec Mail</title>
+<link rel="manifest" href="/static/manifest.json">
+<style>
 :root {
-    --blue:        #3b82f6;
-    --blue-dim:    #2563eb;
-    --blue-glow:   rgba(59,130,246,0.12);
-    --green:       #10b981;
-    --red:         #ef4444;
-    --red-dim:     #dc2626;
-
-    --bg:          #0d1117;
-    --surface-1:   #161b22;
-    --surface-2:   #1c2333;
-    --surface-3:   #21262d;
-    --surface-hover:#2d333b;
-    --border:      rgba(255,255,255,0.07);
-    --border-focus:rgba(59,130,246,0.55);
-
-    --text-1:      #e6edf3;
-    --text-2:      #8b949e;
-    --text-3:      #484f58;
-
-    --radius-sm:   6px;
-    --radius-md:   10px;
-    --radius-lg:   14px;
-
-    --ease:        cubic-bezier(0.16,1,0.3,1);
-    --t-fast:      120ms;
-    --t-med:       200ms;
-
-    --sidebar-w:   260px;
-    --header-h:    52px;
+  --bg:        #0d0d0f;
+  --surface:   #141416;
+  --surface2:  #1a1a1d;
+  --surface3:  #202024;
+  --border:    rgba(255,255,255,0.07);
+  --border2:   rgba(255,255,255,0.12);
+  --text:      #e8e8ea;
+  --muted:     #8a8a90;
+  --faint:     #4a4a52;
+  --accent:    #c8a96e;
+  --accent2:   #e8c87a;
+  --accentbg:  rgba(200,169,110,0.10);
+  --accentbg2: rgba(200,169,110,0.18);
+  --red:       #e05555;
+  --redbg:     rgba(224,85,85,0.12);
+  --green:     #5ec48a;
+  --greenbg:   rgba(94,196,138,0.12);
+  --radius:    6px;
+  --radius2:   10px;
+  --trans:     150ms cubic-bezier(0.16,1,0.3,1);
 }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{height:100%;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body{height:100%;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;background:var(--bg);color:var(--text);overflow:hidden}
 
-html,body {
-    height:100%; height:100dvh;
-    font-family:'Inter',system-ui,sans-serif;
-    background:var(--bg);
-    color:var(--text-1);
-    -webkit-text-size-adjust:100%;
-    touch-action:manipulation;
-    overflow:hidden;
-    -webkit-font-smoothing:antialiased;
-}
+/* ---- Layout ---- */
+#app{display:grid;grid-template-columns:220px 320px 1fr;grid-template-rows:100vh;height:100vh}
+#sidebar{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+#list-pane{background:var(--surface2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+#read-pane{background:var(--bg);display:flex;flex-direction:column;overflow:hidden}
 
+/* ---- Sidebar ---- */
+.sb-logo{padding:20px 18px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.sb-logo svg{flex-shrink:0}
+.sb-logo-text{font-size:15px;font-weight:700;letter-spacing:0.04em;color:var(--text)}
+.sb-logo-sub{font-size:10px;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase}
+
+.compose-btn{margin:14px 12px 8px;padding:10px 14px;background:var(--accent);color:#0d0d0f;border:none;border-radius:var(--radius);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:0.03em;transition:background var(--trans);display:flex;align-items:center;gap:8px}
+.compose-btn:hover{background:var(--accent2)}
+
+.sb-search{margin:0 12px 12px;position:relative}
+.sb-search input{width:100%;background:var(--surface3);border:1px solid var(--border);border-radius:var(--radius);padding:7px 10px 7px 32px;font-size:13px;color:var(--text);outline:none;transition:border-color var(--trans)}
+.sb-search input:focus{border-color:var(--border2)}
+.sb-search input::placeholder{color:var(--faint)}
+.sb-search svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--faint)}
+
+.sb-section{font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--faint);padding:8px 18px 4px}
+.sb-nav{flex:1;overflow-y:auto;padding-bottom:8px}
+.sb-nav a{display:flex;align-items:center;gap:10px;padding:8px 18px;color:var(--muted);text-decoration:none;font-size:13px;border-radius:0;transition:color var(--trans),background var(--trans);cursor:pointer;position:relative}
+.sb-nav a:hover{color:var(--text);background:rgba(255,255,255,0.04)}
+.sb-nav a.active{color:var(--accent);background:var(--accentbg)}
+.sb-nav a .badge{margin-left:auto;background:var(--accent);color:#0d0d0f;font-size:10px;font-weight:700;padding:2px 6px;border-radius:99px;min-width:18px;text-align:center}
+
+.sb-footer{border-top:1px solid var(--border);padding:12px 14px}
+.sb-user{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.sb-avatar{width:30px;height:30px;border-radius:50%;background:var(--accentbg);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--accent);flex-shrink:0}
+.sb-username{font-size:13px;font-weight:500;color:var(--text)}
+.sb-email-addr{font-size:11px;color:var(--muted)}
+.sb-actions{display:flex;gap:6px}
+.sb-action-btn{flex:1;padding:6px 8px;background:var(--surface3);border:1px solid var(--border);border-radius:var(--radius);font-size:11px;color:var(--muted);cursor:pointer;text-align:center;text-decoration:none;display:block;transition:color var(--trans),border-color var(--trans)}
+.sb-action-btn:hover{color:var(--text);border-color:var(--border2)}
+.sb-action-btn.danger:hover{color:var(--red);border-color:var(--red)}
+
+/* ---- List pane ---- */
+.lp-header{padding:16px 16px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:between;gap:8px}
+.lp-title{font-size:15px;font-weight:700;color:var(--text);flex:1}
+.lp-count{font-size:12px;color:var(--muted)}
+.lp-toolbar{display:flex;align-items:center;gap:6px;padding:10px 12px;border-bottom:1px solid var(--border)}
+.lp-filter{flex:1;background:var(--surface3);border:1px solid var(--border);border-radius:var(--radius);padding:6px 10px;font-size:12px;color:var(--text);outline:none;transition:border-color var(--trans)}
+.lp-filter:focus{border-color:var(--border2)}
+.lp-filter::placeholder{color:var(--faint)}
+.icon-btn{background:none;border:1px solid var(--border);border-radius:var(--radius);width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);transition:color var(--trans),border-color var(--trans);flex-shrink:0}
+.icon-btn:hover{color:var(--text);border-color:var(--border2)}
+
+#message-list{flex:1;overflow-y:auto;padding:4px 0}
+.msg-item{padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background var(--trans);position:relative}
+.msg-item:hover{background:rgba(255,255,255,0.03)}
+.msg-item.selected{background:var(--accentbg)}
+.msg-item.unread .msg-from{font-weight:700;color:var(--text)}
+.msg-item.unread::before{content:'';position:absolute;left:4px;top:50%;transform:translateY(-50%);width:4px;height:4px;border-radius:50%;background:var(--accent)}
+.msg-row1{display:flex;align-items:center;gap:8px;margin-bottom:3px}
+.msg-from{font-size:13px;color:var(--muted);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.msg-time{font-size:11px;color:var(--faint);flex-shrink:0}
+.msg-subject{font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
+.msg-preview{font-size:12px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.msg-star{position:absolute;right:12px;bottom:10px;color:var(--faint);cursor:pointer;font-size:12px;opacity:0;transition:opacity var(--trans),color var(--trans)}
+.msg-item:hover .msg-star{opacity:1}
+.msg-item .starred{opacity:1!important;color:var(--accent)}
+
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px;color:var(--faint)}
+.empty-state svg{opacity:0.3}
+.empty-state p{font-size:13px}
+
+/* ---- Reading pane ---- */
+.rp-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;color:var(--faint)}
+.rp-empty svg{opacity:0.15}
+.rp-empty p{font-size:13px}
+
+.rp-header{padding:18px 24px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
+.rp-subject{font-size:18px;font-weight:700;color:var(--text);margin-bottom:10px;line-height:1.3}
+.rp-meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.rp-meta-badge{font-size:11px;background:var(--surface3);border:1px solid var(--border);border-radius:99px;padding:3px 10px;color:var(--muted)}
+.rp-meta-badge b{color:var(--text)}
+.rp-actions{padding:10px 24px;border-bottom:1px solid var(--border);display:flex;gap:8px;flex-shrink:0}
+.rp-btn{padding:6px 14px;border-radius:var(--radius);font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface3);color:var(--muted);transition:color var(--trans),border-color var(--trans),background var(--trans);display:flex;align-items:center;gap:6px}
+.rp-btn:hover{color:var(--text);border-color:var(--border2)}
+.rp-btn.primary{background:var(--accentbg);border-color:var(--accent);color:var(--accent)}
+.rp-btn.primary:hover{background:var(--accentbg2)}
+.rp-btn.danger:hover{color:var(--red);border-color:var(--red);background:var(--redbg)}
+.rp-body{flex:1;overflow-y:auto;padding:24px;line-height:1.8;font-size:14px;color:var(--text)}
+.rp-body pre{white-space:pre-wrap;word-break:break-word;font-family:inherit;font-size:14px}
+
+/* ---- Compose modal ---- */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:flex-end;justify-content:flex-end;padding:16px}
+.modal-overlay.open{display:flex}
+.compose-modal{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius2);width:100%;max-width:560px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(0,0,0,0.6)}
+.compose-modal.full{max-width:760px;max-height:90vh}
+.cm-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.cm-title{font-size:14px;font-weight:700;color:var(--text);flex:1}
+.cm-hbtn{background:none;border:none;color:var(--muted);cursor:pointer;padding:4px;border-radius:4px;display:flex;align-items:center;transition:color var(--trans)}
+.cm-hbtn:hover{color:var(--text)}
+.cm-fields{border-bottom:1px solid var(--border)}
+.cm-field{display:flex;align-items:center;border-bottom:1px solid var(--border);padding:0 18px}
+.cm-field:last-child{border-bottom:none}
+.cm-label{font-size:12px;color:var(--muted);min-width:52px;font-weight:500}
+.cm-field input{flex:1;background:none;border:none;padding:10px 8px;font-size:13px;color:var(--text);outline:none}
+.cm-field input::placeholder{color:var(--faint)}
+.cm-body{flex:1;padding:14px 18px;min-height:140px}
+.cm-body textarea{width:100%;height:100%;min-height:120px;background:none;border:none;font-size:13px;color:var(--text);resize:none;outline:none;line-height:1.7;font-family:inherit}
+.cm-body textarea::placeholder{color:var(--faint)}
+.cm-footer{padding:12px 18px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.send-btn{padding:8px 18px;background:var(--accent);color:#0d0d0f;border:none;border-radius:var(--radius);font-size:13px;font-weight:700;cursor:pointer;transition:background var(--trans)}
+.send-btn:hover{background:var(--accent2)}
+.send-btn:disabled{opacity:0.5;cursor:not-allowed}
+.cancel-btn{padding:8px 14px;background:none;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;color:var(--muted);cursor:pointer;transition:color var(--trans),border-color var(--trans)}
+.cancel-btn:hover{color:var(--text);border-color:var(--border2)}
+.cm-status{font-size:12px;margin-left:auto}
+.cm-status.ok{color:var(--green)}
+.cm-status.err{color:var(--red)}
+
+/* ---- Toast ---- */
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface3);border:1px solid var(--border2);border-radius:var(--radius);padding:10px 18px;font-size:13px;color:var(--text);box-shadow:0 8px 24px rgba(0,0,0,0.4);transition:transform 0.25s cubic-bezier(0.16,1,0.3,1);z-index:9999;white-space:nowrap}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#toast.ok{border-color:var(--green);color:var(--green)}
+#toast.err{border-color:var(--red);color:var(--red)}
+
+/* ---- Loading ---- */
+.loading-bar{height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent));background-size:200%;animation:loadbar 1.2s linear infinite;border-radius:1px}
+@keyframes loadbar{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ---- Scrollbar ---- */
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:99px}
-::-webkit-scrollbar-thumb:hover{background:var(--text-3)}
+::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--border2)}
 
-.app {
-    display:grid;
-    grid-template-columns:var(--sidebar-w) 1fr;
-    grid-template-rows:var(--header-h) 1fr;
-    height:100dvh;
-    width:100vw;
+/* ---- Mobile ---- */
+@media(max-width:900px){
+  #app{grid-template-columns:1fr}
+  #list-pane,#read-pane{display:none}
+  #sidebar{display:flex;height:100vh}
+  #app.view-list #sidebar{display:none}
+  #app.view-list #list-pane{display:flex}
+  #app.view-read #sidebar{display:none}
+  #app.view-read #read-pane{display:flex}
+  .mobile-back{display:flex!important}
 }
-
-/* SIDEBAR */
-.sidebar {
-    grid-row:1/-1;
-    background:var(--surface-1);
-    border-right:1px solid var(--border);
-    display:flex;
-    flex-direction:column;
-    overflow:hidden;
-}
-.sidebar-brand {
-    height:var(--header-h);
-    padding:0 16px;
-    display:flex;align-items:center;gap:10px;
-    border-bottom:1px solid var(--border);
-    flex-shrink:0;
-}
-.brand-icon{width:26px;height:26px;flex-shrink:0}
-.brand-name{font-size:14px;font-weight:600;color:var(--text-1);letter-spacing:-0.01em}
-.sidebar-user{padding:12px 16px;border-bottom:1px solid var(--border);flex-shrink:0}
-.user-email{font-size:12px;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sidebar-nav{flex:1;padding:8px;overflow-y:auto;display:flex;flex-direction:column;gap:2px}
-.nav-btn{
-    width:100%;padding:9px 12px;background:none;border:none;border-radius:var(--radius-sm);
-    color:var(--text-2);font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;
-    display:flex;align-items:center;gap:10px;text-align:left;
-    transition:background var(--t-fast) var(--ease),color var(--t-fast) var(--ease);
-    -webkit-tap-highlight-color:transparent;
-}
-.nav-btn:hover,.nav-btn:focus-visible{background:var(--surface-hover);color:var(--text-1)}
-.nav-btn:focus-visible{outline:2px solid var(--border-focus);outline-offset:-2px}
-.nav-btn:active{transform:scale(0.98)}
-.nav-btn.active{background:var(--blue-glow);color:var(--blue)}
-.nav-btn svg{flex-shrink:0;opacity:.7}
-.nav-btn.active svg,.nav-btn:hover svg{opacity:1}
-.sidebar-compose{padding:12px;border-top:1px solid var(--border);flex-shrink:0}
-.compose-btn{
-    width:100%;padding:10px 16px;background:var(--blue);color:#fff;
-    border:none;border-radius:var(--radius-md);
-    font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;
-    display:flex;align-items:center;justify-content:center;gap:8px;
-    transition:background var(--t-fast) var(--ease),transform var(--t-fast) var(--ease);
-    -webkit-tap-highlight-color:transparent;
-}
-.compose-btn:hover{background:var(--blue-dim)}
-.compose-btn:active{transform:scale(0.98)}
-.compose-btn:focus-visible{outline:2px solid rgba(255,255,255,0.5);outline-offset:2px}
-
-/* TOPBAR */
-.topbar {
-    grid-column:2;background:var(--surface-1);border-bottom:1px solid var(--border);
-    padding:0 20px;display:flex;align-items:center;justify-content:space-between;
-    gap:12px;height:var(--header-h);
-}
-.topbar-title{font-size:14px;font-weight:600;color:var(--text-1)}
-.topbar-actions{display:flex;align-items:center;gap:6px}
-
-/* BUTTONS */
-.icon-btn{
-    width:32px;height:32px;background:none;border:none;border-radius:var(--radius-sm);
-    color:var(--text-2);cursor:pointer;display:flex;align-items:center;justify-content:center;
-    transition:background var(--t-fast) var(--ease),color var(--t-fast) var(--ease);
-    -webkit-tap-highlight-color:transparent;flex-shrink:0;
-}
-.icon-btn:hover{background:var(--surface-hover);color:var(--text-1)}
-.icon-btn:focus-visible{outline:2px solid var(--border-focus);outline-offset:-2px;border-radius:var(--radius-sm)}
-.icon-btn:active{transform:scale(0.9)}
-.text-btn{
-    padding:6px 12px;background:var(--surface-3);border:1px solid var(--border);
-    border-radius:var(--radius-sm);color:var(--text-1);font-size:13px;font-weight:500;
-    font-family:inherit;cursor:pointer;white-space:nowrap;
-    transition:background var(--t-fast) var(--ease);
-    -webkit-tap-highlight-color:transparent;
-}
-.text-btn:hover{background:var(--surface-hover)}
-.text-btn:focus-visible{outline:2px solid var(--border-focus);outline-offset:1px}
-.text-btn:active{transform:scale(0.97)}
-.text-btn.primary{background:var(--blue);border-color:transparent;color:#fff}
-.text-btn.primary:hover{background:var(--blue-dim)}
-.text-btn.danger{background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.3);color:var(--red)}
-.text-btn.danger:hover{background:rgba(239,68,68,0.18)}
-
-/* MAIN */
-.main{grid-column:2;display:flex;flex-direction:column;min-height:0;overflow:hidden}
-.view{display:none;flex-direction:column;flex:1;min-height:0;overflow:hidden}
-.view.active{display:flex}
-
-/* EMAIL LIST */
-.email-list{flex:1;overflow-y:auto;padding:8px}
-.email-item{
-    padding:12px 14px;border-radius:var(--radius-md);cursor:pointer;
-    transition:background var(--t-fast) var(--ease);
-    display:grid;grid-template-columns:1fr auto;grid-template-rows:auto auto;
-    gap:2px 12px;-webkit-tap-highlight-color:transparent;
-    border:1px solid transparent;
-}
-.email-item:hover{background:var(--surface-2);border-color:var(--border)}
-.email-item:active{background:var(--surface-3)}
-.email-item+.email-item{margin-top:2px}
-.email-from{font-size:13px;font-weight:600;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;grid-column:1}
-.email-date{font-size:11px;color:var(--text-3);white-space:nowrap;grid-column:2;grid-row:1;align-self:center}
-.email-subject{font-size:13px;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;grid-column:1/-1}
-
-/* STATE EMPTY */
-.state-empty{
-    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    gap:10px;padding:40px;color:var(--text-3);text-align:center;
-}
-.state-empty svg{opacity:.3}
-.state-empty p{font-size:13px;max-width:24ch}
-
-/* DETAIL */
-.detail-header{padding:20px;border-bottom:1px solid var(--border);background:var(--surface-1);flex-shrink:0}
-.detail-subject{font-size:17px;font-weight:600;line-height:1.35;word-break:break-word;margin-bottom:12px}
-.detail-meta{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--text-2)}
-.detail-meta span{color:var(--text-1)}
-.detail-actions{
-    padding:8px 16px;border-bottom:1px solid var(--border);
-    display:flex;gap:6px;background:var(--surface-1);flex-shrink:0;
-}
-.detail-body{
-    flex:1;overflow-y:auto;padding:20px;font-size:14px;line-height:1.75;
-    word-wrap:break-word;color:var(--text-1);
-}
-.detail-body img{max-width:100%;height:auto;border-radius:var(--radius-sm)}
-
-/* COMPOSE */
-.compose-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:0}
-.field{display:flex;align-items:baseline;border-bottom:1px solid var(--border);padding:0}
-.field:last-of-type{border-bottom:none}
-.field-label{
-    font-size:12px;font-weight:600;color:var(--text-3);padding:13px 14px 13px 0;
-    width:56px;flex-shrink:0;text-transform:uppercase;letter-spacing:0.04em;
-}
-.field-input{
-    flex:1;padding:13px 0;background:none;border:none;color:var(--text-1);
-    font-size:14px;font-family:inherit;outline:none;min-width:0;
-}
-.field-input::placeholder{color:var(--text-3)}
-.compose-area{
-    flex:1;margin-top:12px;padding:0;background:none;border:none;color:var(--text-1);
-    font-size:14px;font-family:inherit;line-height:1.7;outline:none;resize:none;min-height:200px;
-}
-.compose-area::placeholder{color:var(--text-3)}
-.compose-footer{
-    padding:12px 16px;border-top:1px solid var(--border);
-    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0;
-}
-.send-status{font-size:13px}
-.send-status.ok{color:var(--green)}
-.send-status.err{color:var(--red)}
-
-/* INSTALL */
-.install-cta{
-    position:fixed;right:16px;bottom:16px;z-index:999;
-    display:none;align-items:center;gap:9px;padding:11px 18px;
-    background:var(--surface-2);border:1px solid var(--border);border-radius:999px;
-    box-shadow:0 8px 24px rgba(0,0,0,.5);color:var(--text-1);
-    font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;
-    transition:transform var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease);
-}
-.install-cta:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,0,0,.6)}
-.install-cta:active{transform:scale(0.97)}
-.install-cta:focus-visible{outline:2px solid var(--border-focus);outline-offset:2px}
-.install-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0}
-
-.hidden{display:none!important}
-
-/* MOBILE */
-@media(max-width:768px){
-    .app{grid-template-columns:1fr;grid-template-rows:var(--header-h) 1fr}
-    .sidebar{
-        grid-row:unset;position:fixed;inset:0;z-index:100;
-        transform:translateX(-100%);transition:transform var(--t-med) var(--ease);
-        width:min(280px,85vw);
-    }
-    .sidebar.open{transform:translateX(0)}
-    .sidebar-overlay{
-        display:none;position:fixed;inset:0;z-index:99;
-        background:rgba(0,0,0,.6);backdrop-filter:blur(2px);
-    }
-    .sidebar-overlay.open{display:block}
-    .topbar{grid-column:1}
-    .main{grid-column:1}
-    .detail-header{padding:14px 16px}
-    .detail-subject{font-size:15px}
-    .detail-body{padding:16px}
-    .compose-body{padding:12px}
-    .install-cta{
-        right:12px;left:12px;bottom:env(safe-area-inset-bottom,12px);
-        justify-content:center;max-width:none;
-    }
-}
-    </style>
+.mobile-back{display:none;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer;padding:8px 16px;border-bottom:1px solid var(--border)}
+.mobile-back:hover{color:var(--text)}
+</style>
 </head>
 <body>
+<div id="app">
 
-<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
-
-<div class="app">
-
-  <aside class="sidebar" id="sidebar" aria-label="Navigation">
-    <div class="sidebar-brand">
-      <svg class="brand-icon" viewBox="0 0 26 26" fill="none" aria-hidden="true">
-        <rect width="26" height="26" rx="7" fill="#3b82f6"/>
-        <path d="M6 9 L13 15 L20 9" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M6 9 L6 18.5Q6 19.5 7 19.5L19 19.5Q20 19.5 20 18.5L20 9" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <span class="brand-name">Manitec Mail</span>
+<!-- SIDEBAR -->
+<aside id="sidebar">
+  <div class="sb-logo">
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      <rect width="28" height="28" rx="5" fill="#c8a96e" fill-opacity="0.12"/>
+      <path d="M5 21V7l9 8 9-8v14M5 7l9 8 9-8" stroke="#c8a96e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div>
+      <div class="sb-logo-text">Manitec Mail</div>
+      <div class="sb-logo-sub">manitec.pw</div>
     </div>
-    <div class="sidebar-user">
-      <div class="user-email" id="user-email">Loading…</div>
-    </div>
-    <nav class="sidebar-nav" aria-label="Folders">
-      <button class="nav-btn active" id="nav-inbox" onclick="goInbox()" aria-current="page">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
-        Inbox
-      </button>
-      <button class="nav-btn" onclick="window.location.href='/settings'">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        Settings
-      </button>
-      <button class="nav-btn" onclick="window.location.href='/logout'">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-        Sign out
-      </button>
-    </nav>
-    <div class="sidebar-compose">
-      <button class="compose-btn" onclick="showCompose()" id="sidebar-compose-btn">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Compose
-      </button>
-    </div>
-  </aside>
+  </div>
 
-  <header class="topbar" role="banner">
-    <div style="display:flex;align-items:center;gap:10px">
-      <button class="icon-btn" id="menu-btn" onclick="toggleSidebar()" aria-label="Menu" style="display:none">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-      </button>
-      <h1 class="topbar-title" id="topbar-title">Inbox</h1>
-    </div>
-    <div class="topbar-actions" id="topbar-actions">
-      <button class="icon-btn" onclick="loadInbox()" aria-label="Refresh inbox" id="refresh-btn">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-      </button>
-    </div>
-  </header>
+  <button class="compose-btn" onclick="openCompose()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+    Compose
+  </button>
 
-  <main class="main" id="main">
+  <div class="sb-search">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" placeholder="Search mail…" id="globalSearch" oninput="filterMessages(this.value)">
+  </div>
 
-    <div class="view active" id="inbox-view" role="region" aria-label="Inbox">
-      <div class="email-list" id="email-list" role="list"></div>
-    </div>
+  <nav class="sb-nav" id="sidebar-nav">
+    <div class="sb-section">Mailbox</div>
+    <a onclick="setFolder('inbox')" class="active" id="nav-inbox" data-folder="inbox">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 12h-6l-2 3H10l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+      Inbox
+      <span class="badge" id="unread-badge" style="display:none">0</span>
+    </a>
+    <a onclick="setFolder('sent')" id="nav-sent" data-folder="sent">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      Sent
+    </a>
+    <a onclick="setFolder('drafts')" id="nav-drafts" data-folder="drafts">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      Drafts
+    </a>
+    <a onclick="setFolder('trash')" id="nav-trash" data-folder="trash">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+      Trash
+    </a>
+    <div class="sb-section" style="margin-top:8px">Actions</div>
+    <a href="/settings">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Settings
+    </a>
+    <a href="/admin" id="admin-link" style="display:none">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Admin
+    </a>
+  </nav>
 
-    <div class="view" id="detail-view" role="region" aria-label="Email detail">
-      <div class="detail-header">
-        <div class="detail-subject" id="detail-subject"></div>
-        <div class="detail-meta">
-          <div>From&nbsp; <span id="detail-from"></span></div>
-          <div>To&nbsp;&nbsp;&nbsp; <span id="detail-to"></span></div>
-          <div>Date&nbsp; <span id="detail-date"></span></div>
-        </div>
-      </div>
-      <div class="detail-actions">
-        <button class="text-btn primary" onclick="showReply()">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:-1px" aria-hidden="true"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg>
-          Reply
-        </button>
-        <button class="text-btn" onclick="showForward()">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:-1px" aria-hidden="true"><polyline points="15 17 20 12 15 7"/><path d="M4 18v-2a4 4 0 0 1 4-4h12"/></svg>
-          Forward
-        </button>
-        <button class="text-btn danger" onclick="deleteEmail()">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:-1px" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-          Delete
-        </button>
-      </div>
-      <div id="detail-body" class="detail-body"></div>
-    </div>
-
-    <div class="view" id="compose-view" role="region" aria-label="Compose email">
-      <div class="compose-body">
-        <div class="field">
-          <label class="field-label" for="compose-to">To</label>
-          <input class="field-input" type="email" id="compose-to" placeholder="recipient@example.com" autocomplete="email" autocapitalize="none">
-        </div>
-        <div class="field">
-          <label class="field-label" for="compose-subject">Subject</label>
-          <input class="field-input" type="text" id="compose-subject" placeholder="Subject">
-        </div>
-        <textarea class="compose-area" id="compose-content" placeholder="Write your message…" aria-label="Message body"></textarea>
-      </div>
-      <div class="compose-footer">
-        <button class="text-btn" onclick="backToInbox()">Discard</button>
-        <div style="display:flex;align-items:center;gap:10px">
-          <span class="send-status" id="compose-status" aria-live="polite"></span>
-          <button class="text-btn primary" onclick="sendEmail()" id="send-btn">
-            Send
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:-1px;margin-left:4px" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-          </button>
-        </div>
+  <div class="sb-footer">
+    <div class="sb-user">
+      <div class="sb-avatar" id="sb-avatar">?</div>
+      <div>
+        <div class="sb-username" id="sb-username">—</div>
+        <div class="sb-email-addr" id="sb-email">—</div>
       </div>
     </div>
+    <div class="sb-actions">
+      <button class="sb-action-btn" onclick="loadInbox()">↻ Refresh</button>
+      <a href="/logout" class="sb-action-btn danger">Sign out</a>
+    </div>
+  </div>
+</aside>
 
-  </main>
+<!-- LIST PANE -->
+<section id="list-pane">
+  <div class="mobile-back" onclick="goBack()">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+    Menu
+  </div>
+  <div class="lp-header">
+    <span class="lp-title" id="lp-title">Inbox</span>
+    <span class="lp-count" id="lp-count"></span>
+  </div>
+  <div class="lp-toolbar">
+    <input class="lp-filter" type="text" placeholder="Filter in folder…" id="folderSearch" oninput="filterMessages(this.value)">
+    <button class="icon-btn" title="Refresh" onclick="loadInbox()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+    </button>
+  </div>
+  <div id="message-list">
+    <div class="empty-state" id="list-loading" style="display:none">
+      <div class="loading-bar" style="width:140px;"></div>
+      <p>Loading…</p>
+    </div>
+    <div class="empty-state" id="list-empty" style="display:none">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M22 12h-6l-2 3H10l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+      <p>Nothing here</p>
+    </div>
+  </div>
+</section>
+
+<!-- READING PANE -->
+<section id="read-pane">
+  <div class="mobile-back" onclick="goBackList()" id="mobile-back-msg" style="display:none">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+    Back
+  </div>
+  <div class="rp-empty" id="rp-empty">
+    <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M22 12h-6l-2 3H10l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+    <p>Select a message</p>
+  </div>
+  <div id="rp-content" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+    <div class="rp-header">
+      <div class="rp-subject" id="rp-subject">—</div>
+      <div class="rp-meta">
+        <span class="rp-meta-badge"><b>From</b> <span id="rp-from">—</span></span>
+        <span class="rp-meta-badge"><b>To</b> <span id="rp-to">—</span></span>
+        <span class="rp-meta-badge" id="rp-date">—</span>
+      </div>
+    </div>
+    <div class="rp-actions">
+      <button class="rp-btn primary" onclick="openReply()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg>
+        Reply
+      </button>
+      <button class="rp-btn" onclick="openForward()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 17 20 12 15 7"/><path d="M4 18v-2a4 4 0 0 1 4-4h12"/></svg>
+        Forward
+      </button>
+      <button class="rp-btn danger" onclick="deleteCurrentMessage()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6M9 6V4h6v2"/></svg>
+        Delete
+      </button>
+    </div>
+    <div class="rp-body" id="rp-body"></div>
+  </div>
+</section>
+
 </div>
 
-<button class="install-cta" id="install-cta" type="button" aria-label="Install Manitec Mail as an app" hidden>
-  <span class="install-dot" aria-hidden="true"></span>
-  Install app
-</button>
+<!-- COMPOSE MODAL -->
+<div class="modal-overlay" id="composeOverlay">
+  <div class="compose-modal" id="composeModal">
+    <div class="cm-header">
+      <span class="cm-title" id="cm-title">New Message</span>
+      <button class="cm-hbtn" onclick="toggleFullCompose()" title="Expand">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+      </button>
+      <button class="cm-hbtn" onclick="closeCompose()" title="Close">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="cm-fields">
+      <div class="cm-field">
+        <span class="cm-label">To</span>
+        <input type="email" id="cm-to" placeholder="recipient@example.com">
+      </div>
+      <div class="cm-field">
+        <span class="cm-label">Subject</span>
+        <input type="text" id="cm-subject" placeholder="Subject">
+      </div>
+    </div>
+    <div class="cm-body">
+      <textarea id="cm-body" placeholder="Write your message…"></textarea>
+    </div>
+    <div class="cm-footer">
+      <button class="send-btn" id="send-btn" onclick="sendEmail()">
+        <span id="send-btn-text">Send</span>
+      </button>
+      <button class="cancel-btn" onclick="closeCompose()">Cancel</button>
+      <span class="cm-status" id="cm-status"></span>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
 
 <script>
-const API = '';
-let currentMsg = null;
-let currentMsgId = null;
+let messages = [];
+let currentFolder = 'inbox';
+let currentMessage = null;
 let composeMode = 'new';
-let inboxCache = [];
+let stars = {};
+try { stars = JSON.parse(sessionStorage.getItem('stars') || '{}'); } catch {}
 
-function setView(id, title) {
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    document.getElementById('topbar-title').textContent = title;
-    document.getElementById('refresh-btn').style.display = id === 'inbox-view' ? '' : 'none';
-    const backBtn = document.getElementById('topbar-back');
-    if (backBtn) backBtn.style.display = id !== 'inbox-view' ? '' : 'none';
+async function init() {
+  try {
+    const me = await fetch('/me').then(r => r.json());
+    document.getElementById('sb-username').textContent = me.username;
+    document.getElementById('sb-email').textContent = me.email;
+    document.getElementById('sb-avatar').textContent = me.username[0].toUpperCase();
+    if (me.is_admin) document.getElementById('admin-link').style.display = '';
+  } catch(e) {}
+  await loadInbox();
 }
 
-function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('open');
-    document.getElementById('sidebar-overlay').classList.toggle('open');
-}
-function closeSidebar() {
-    document.getElementById('sidebar').classList.remove('open');
-    document.getElementById('sidebar-overlay').classList.remove('open');
-}
-
-function setupResponsive() {
-    const isMobile = window.matchMedia('(max-width: 768px)').matches;
-    document.getElementById('menu-btn').style.display = isMobile ? '' : 'none';
-    if (!document.getElementById('topbar-back')) {
-        const btn = document.createElement('button');
-        btn.id = 'topbar-back';
-        btn.className = 'text-btn';
-        btn.style.display = 'none';
-        btn.textContent = '← Back';
-        btn.onclick = () => { backToInbox(); closeSidebar(); };
-        document.getElementById('topbar-actions').prepend(btn);
-    }
-}
-window.addEventListener('resize', setupResponsive);
-
-async function loadUserInfo() {
-    try {
-        const r = await fetch(`${API}/me`);
-        if (r.ok) {
-            const u = await r.json();
-            document.getElementById('user-email').textContent = u.email || 'Unknown';
-        } else {
-            document.getElementById('user-email').textContent = 'Not signed in';
-        }
-    } catch { document.getElementById('user-email').textContent = 'Offline'; }
+function setFolder(folder) {
+  currentFolder = folder;
+  const titles = {inbox:'Inbox',sent:'Sent',drafts:'Drafts',trash:'Trash'};
+  document.getElementById('lp-title').textContent = titles[folder];
+  document.querySelectorAll('.sb-nav a[data-folder]').forEach(a => {
+    a.classList.toggle('active', a.dataset.folder === folder);
+  });
+  document.getElementById('rp-empty').style.display = '';
+  document.getElementById('rp-content').style.display = 'none';
+  currentMessage = null;
+  if (folder === 'inbox') { loadInbox(); return; }
+  messages = [];
+  renderList();
+  showToast('Only inbox is synced with Zoho', 'ok');
+  document.getElementById('app').className = 'view-list';
 }
 
 async function loadInbox() {
-    closeSidebar();
-    setView('inbox-view', 'Inbox');
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('nav-inbox').classList.add('active');
-
-    const list = document.getElementById('email-list');
-    list.innerHTML = '<div class="state-empty"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg><p>Loading…</p></div>';
-
-    try {
-        const r = await fetch(`${API}/inbox?limit=50`);
-        if (!r.ok) throw new Error(await r.text());
-        const data = await r.json();
-        inboxCache = data || [];
-
-        if (!inboxCache.length) {
-            list.innerHTML = '<div class="state-empty"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg><p>Your inbox is empty</p></div>';
-            return;
-        }
-
-        list.innerHTML = inboxCache.map(msg => {
-            const date = msg.receivedTime ? fmtDate(parseInt(msg.receivedTime)) : '';
-            const from = esc(msg.fromAddress || msg.sender || 'Unknown');
-            const subj = esc(msg.subject || msg.summary || '(No subject)');
-            return `<div class="email-item" role="listitem" tabindex="0"
-                onclick="loadMessage('${msg.messageId}')"
-                onkeydown="if(event.key==='Enter'||event.key===' ')loadMessage('${msg.messageId}')">
-                <div class="email-from">${from}</div>
-                <div class="email-date">${date}</div>
-                <div class="email-subject">${subj}</div>
-            </div>`;
-        }).join('');
-
-    } catch(e) {
-        list.innerHTML = `<div class="state-empty" style="color:var(--red)"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p>${esc(e.message)}</p></div>`;
-    }
+  setLoading(true);
+  try {
+    const data = await fetch('/inbox?limit=50').then(r => {
+      if (!r.ok) throw new Error(r.status);
+      return r.json();
+    });
+    messages = (data || []).map(m => ({
+      id: m.messageId,
+      from: m.fromAddress || m.sender || '—',
+      to: m.toAddress || '',
+      subject: m.subject || '(no subject)',
+      preview: m.summary || '',
+      date: m.receivedTime || m.sentDateInGMT || '',
+      unread: !m.isRead,
+      raw: m
+    }));
+    renderList();
+    updateUnreadBadge();
+    setLoading(false);
+  } catch(e) {
+    setLoading(false);
+    showEmptyState('Could not load inbox — ' + e.message);
+  }
 }
 
-function goInbox() { loadInbox(); }
-
-async function loadMessage(msgId) {
-    setView('detail-view', 'Email');
-    document.getElementById('detail-body').textContent = 'Loading…';
-    document.getElementById('detail-subject').textContent = '';
-
-    try {
-        const r = await fetch(`${API}/message/${msgId}`);
-        if (!r.ok) throw new Error(await r.text());
-        const data = await r.json();
-        const meta = inboxCache.find(m => m.messageId === msgId);
-        if (!meta) throw new Error('Message not found — try refreshing.');
-
-        currentMsg = { ...meta, content: data.content };
-        currentMsgId = msgId;
-
-        document.getElementById('detail-subject').textContent = meta.subject || meta.summary || '(No subject)';
-        document.getElementById('detail-from').textContent = meta.fromAddress || meta.sender || 'Unknown';
-        document.getElementById('detail-to').textContent = (meta.toAddress || '').replace(/[<>]/g,'') || '—';
-        document.getElementById('detail-date').textContent = meta.receivedTime ? new Date(parseInt(meta.receivedTime)).toLocaleString() : '—';
-        document.getElementById('detail-body').innerHTML = sanitize(data.content || '(No content)');
-    } catch(e) {
-        document.getElementById('detail-body').innerHTML = `<span style="color:var(--red)">${esc(e.message)}</span>`;
-    }
+function setLoading(on) {
+  document.getElementById('list-loading').style.display = on ? '' : 'none';
+  document.getElementById('list-empty').style.display = 'none';
 }
 
-function backToInbox() { loadInbox(); }
-
-function prepareCompose(mode, to='', subject='', body='') {
-    composeMode = mode;
-    document.getElementById('compose-to').value = to;
-    document.getElementById('compose-subject').value = subject;
-    document.getElementById('compose-content').value = body;
-    document.getElementById('compose-status').textContent = '';
-    document.getElementById('send-btn').disabled = false;
-    const titles = {new:'New Message', reply:'Reply', forward:'Forward'};
-    setView('compose-view', titles[mode] || 'Compose');
-    if(location.hash !== '#compose') history.replaceState(null,'','#compose');
-    setTimeout(() => {
-        const f = document.getElementById(to ? 'compose-subject' : 'compose-to');
-        f && f.focus();
-    }, 100);
+function showEmptyState(msg) {
+  const el = document.getElementById('list-empty');
+  el.style.display = '';
+  el.querySelector('p').textContent = msg || 'Nothing here';
 }
 
-function showCompose() { prepareCompose('new'); closeSidebar(); }
-
-function showReply() {
-    if (!currentMsg) return;
-    prepareCompose('reply',
-        currentMsg.fromAddress || '',
-        'Re: ' + (currentMsg.subject || ''),
-        '\n\n— Original —\n' + (currentMsg.content||'').replace(/<[^>]+>/g,' ').trim().substring(0,400)
-    );
+function updateUnreadBadge() {
+  const count = messages.filter(m => m.unread).length;
+  const b = document.getElementById('unread-badge');
+  if (count > 0) { b.style.display = ''; b.textContent = count; }
+  else { b.style.display = 'none'; }
 }
 
-function showForward() {
-    if (!currentMsg) return;
-    prepareCompose('forward',
-        '',
-        'Fwd: ' + (currentMsg.subject || ''),
-        '\n\n— Forwarded from ' + (currentMsg.fromAddress||'') + ' —\n' + (currentMsg.content||'').replace(/<[^>]+>/g,' ').trim().substring(0,400)
-    );
+let filterQuery = '';
+function filterMessages(q) {
+  filterQuery = q.toLowerCase();
+  renderList();
+}
+
+function renderList() {
+  const list = document.getElementById('message-list');
+  [...list.children].forEach(el => { if (!el.id) list.removeChild(el); });
+
+  const filtered = messages.filter(m => {
+    if (!filterQuery) return true;
+    return m.from.toLowerCase().includes(filterQuery)
+      || m.subject.toLowerCase().includes(filterQuery)
+      || m.preview.toLowerCase().includes(filterQuery);
+  });
+
+  document.getElementById('lp-count').textContent = filtered.length ? `${filtered.length} messages` : '';
+
+  if (!filtered.length) {
+    showEmptyState(filterQuery ? 'No matches' : 'Nothing here');
+    return;
+  }
+  document.getElementById('list-empty').style.display = 'none';
+  document.getElementById('list-loading').style.display = 'none';
+
+  filtered.forEach(m => {
+    const el = document.createElement('div');
+    el.className = 'msg-item' + (m.unread ? ' unread' : '') + (currentMessage?.id === m.id ? ' selected' : '');
+    el.innerHTML = `
+      <div class="msg-row1">
+        <span class="msg-from">${escHtml(senderName(m.from))}</span>
+        <span class="msg-time">${formatDate(m.date)}</span>
+      </div>
+      <div class="msg-subject">${escHtml(m.subject)}</div>
+      <div class="msg-preview">${escHtml(m.preview)}</div>
+      <span class="msg-star ${stars[m.id] ? 'starred' : ''}" title="Star" onclick="toggleStar(event,'${m.id}')">★</span>
+    `;
+    el.onclick = () => openMessage(m);
+    list.appendChild(el);
+  });
+}
+
+function senderName(addr) {
+  const m = addr.match(/^(.+?)\s*<.+>$/);
+  return m ? m[1].replace(/['"]/g,'') : addr;
+}
+
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function formatDate(ts) {
+  if (!ts) return '';
+  try {
+    const d = typeof ts === 'number' ? new Date(ts) : new Date(ts);
+    const now = new Date();
+    const diff = now - d;
+    if (diff < 86400000 && now.getDate() === d.getDate())
+      return d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    if (diff < 604800000)
+      return d.toLocaleDateString([],{weekday:'short'});
+    return d.toLocaleDateString([],{month:'short',day:'numeric'});
+  } catch { return ''; }
+}
+
+async function openMessage(m) {
+  currentMessage = m;
+  m.unread = false;
+  updateUnreadBadge();
+  renderList();
+
+  document.getElementById('rp-empty').style.display = 'none';
+  const rpc = document.getElementById('rp-content');
+  rpc.style.display = 'flex';
+
+  document.getElementById('rp-subject').textContent = m.subject;
+  document.getElementById('rp-from').textContent = m.from;
+  document.getElementById('rp-to').textContent = m.to;
+  document.getElementById('rp-date').textContent = formatDate(m.date);
+  document.getElementById('rp-body').innerHTML = '<div class="loading-bar"></div>';
+
+  document.getElementById('app').className = 'view-read';
+  document.getElementById('mobile-back-msg').style.display = '';
+
+  try {
+    const data = await fetch(`/message/${m.id}`).then(r => r.json());
+    const body = data.body || data.content || data.text || data.htmlBody || '';
+    document.getElementById('rp-body').innerHTML = body.includes('<') && body.includes('>')
+      ? `<iframe srcdoc="${escHtml(body)}" sandbox="allow-same-origin" style="width:100%;border:none;min-height:300px;background:white;border-radius:4px"></iframe>`
+      : `<pre>${escHtml(body)}</pre>`;
+  } catch(e) {
+    document.getElementById('rp-body').innerHTML = `<pre style="color:var(--muted)">${escHtml(m.preview || 'Could not load message body.')}</pre>`;
+  }
+}
+
+function openReply() {
+  if (!currentMessage) return;
+  composeMode = 'reply';
+  document.getElementById('cm-title').textContent = 'Reply';
+  document.getElementById('cm-to').value = currentMessage.from;
+  document.getElementById('cm-subject').value = currentMessage.subject.startsWith('Re:') ? currentMessage.subject : 'Re: ' + currentMessage.subject;
+  document.getElementById('cm-body').value = '';
+  document.getElementById('cm-status').textContent = '';
+  document.getElementById('composeOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('cm-body').focus(), 50);
+}
+
+function openForward() {
+  if (!currentMessage) return;
+  composeMode = 'forward';
+  document.getElementById('cm-title').textContent = 'Forward';
+  document.getElementById('cm-to').value = '';
+  document.getElementById('cm-subject').value = currentMessage.subject.startsWith('Fwd:') ? currentMessage.subject : 'Fwd: ' + currentMessage.subject;
+  document.getElementById('cm-body').value = '';
+  document.getElementById('cm-status').textContent = '';
+  document.getElementById('composeOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('cm-to').focus(), 50);
+}
+
+function openCompose() {
+  composeMode = 'new';
+  document.getElementById('cm-title').textContent = 'New Message';
+  document.getElementById('cm-to').value = '';
+  document.getElementById('cm-subject').value = '';
+  document.getElementById('cm-body').value = '';
+  document.getElementById('cm-status').textContent = '';
+  document.getElementById('composeOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('cm-to').focus(), 50);
+}
+
+function closeCompose() {
+  document.getElementById('composeOverlay').classList.remove('open');
+  document.getElementById('composeModal').classList.remove('full');
+}
+
+function toggleFullCompose() {
+  document.getElementById('composeModal').classList.toggle('full');
 }
 
 async function sendEmail() {
-    const to      = document.getElementById('compose-to').value.trim();
-    const subject = document.getElementById('compose-subject').value.trim();
-    const content = document.getElementById('compose-content').value;
-    const status  = document.getElementById('compose-status');
-    const sendBtn = document.getElementById('send-btn');
+  const to = document.getElementById('cm-to').value.trim();
+  const subject = document.getElementById('cm-subject').value.trim();
+  const content = document.getElementById('cm-body').value.trim();
+  const btn = document.getElementById('send-btn');
+  const status = document.getElementById('cm-status');
 
-    if (!to || !subject) {
-        status.className = 'send-status err';
-        status.textContent = 'To and Subject required';
-        return;
+  if (!to || !subject || !content) {
+    status.className = 'cm-status err'; status.textContent = 'All fields required'; return;
+  }
+
+  btn.disabled = true;
+  document.getElementById('send-btn-text').textContent = 'Sending…';
+  status.textContent = '';
+
+  try {
+    let url = '/send', body = {to, subject, content};
+
+    if (composeMode === 'reply' && currentMessage) {
+      url = `/reply/${currentMessage.id}`;
+    } else if (composeMode === 'forward' && currentMessage) {
+      url = '/forward';
+      const origBody = document.getElementById('rp-body').innerText || '';
+      body = {to, subject, content, original_content: origBody.slice(0, 4000)};
     }
 
-    sendBtn.disabled = true;
-    status.className = 'send-status';
-    status.textContent = 'Sending…';
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(body)
+    });
 
-    try {
-        let url, payload = { to, subject, content };
-
-        if (composeMode === 'reply' && currentMsgId) {
-            url = `${API}/reply/${currentMsgId}`;
-        } else if (composeMode === 'forward' && currentMsg) {
-            url = `${API}/forward`;
-            payload.original_content = currentMsg.content || '';
-        } else {
-            url = `${API}/send`;
-        }
-
-        const r = await fetch(url, {
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify(payload)
-        });
-
-        if (r.ok) {
-            status.className = 'send-status ok';
-            status.textContent = 'Sent';
-            setTimeout(() => { history.replaceState(null,'','/'); backToInbox(); }, 1200);
-        } else {
-            throw new Error(await r.text());
-        }
-    } catch(e) {
-        status.className = 'send-status err';
-        status.textContent = e.message || 'Send failed';
-        sendBtn.disabled = false;
+    if (resp.ok) {
+      showToast('Message sent ✓', 'ok');
+      closeCompose();
+    } else {
+      const t = await resp.text();
+      status.className = 'cm-status err';
+      status.textContent = 'Error: ' + t.slice(0, 80);
     }
+  } catch(e) {
+    status.className = 'cm-status err';
+    status.textContent = 'Network error';
+  }
+
+  btn.disabled = false;
+  document.getElementById('send-btn-text').textContent = 'Send';
 }
 
-async function deleteEmail() {
-    if (!currentMsgId || !confirm('Move to trash?')) return;
-    try {
-        const r = await fetch(`${API}/message/${currentMsgId}`, {method:'DELETE'});
-        if (r.ok) { backToInbox(); }
-        else alert('Delete failed: ' + await r.text());
-    } catch(e) { alert(e.message); }
+async function deleteCurrentMessage() {
+  if (!currentMessage) return;
+  if (!confirm('Delete this message?')) return;
+  try {
+    const r = await fetch(`/message/${currentMessage.id}`, {method:'DELETE'});
+    if (r.ok) {
+      messages = messages.filter(m => m.id !== currentMessage.id);
+      currentMessage = null;
+      document.getElementById('rp-empty').style.display = '';
+      document.getElementById('rp-content').style.display = 'none';
+      renderList();
+      showToast('Deleted', 'ok');
+    } else {
+      showToast('Delete failed', 'err');
+    }
+  } catch { showToast('Network error', 'err'); }
 }
 
-function esc(t) {
-    const d = document.createElement('div');
-    d.textContent = t;
-    return d.innerHTML;
+function toggleStar(e, id) {
+  e.stopPropagation();
+  stars[id] = !stars[id];
+  try { sessionStorage.setItem('stars', JSON.stringify(stars)); } catch {}
+  renderList();
 }
 
-function fmtDate(ms) {
-    const d = new Date(ms), now = new Date();
-    if (d.toDateString() === now.toDateString()) return d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-    if (now - d < 6.048e8) return d.toLocaleDateString([], {weekday:'short'});
-    return d.toLocaleDateString([], {month:'short',day:'numeric'});
+let toastTimer;
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + (type || '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.className = type || ''; }, 2800);
 }
 
-function sanitize(html) {
-    if (!html) return '(No content)';
-    const wrap = document.createElement('div');
-    wrap.innerHTML = html;
-    const ok = new Set(['div','span','p','br','b','i','u','strong','em','a','img','table','tr','td','th','tbody','thead','tfoot','ul','ol','li','h1','h2','h3','h4','h5','h6','blockquote','pre','code','hr','figure','figcaption']);
-    const okAttr = new Set(['href','src','alt','title','width','height','border','cellpadding','cellspacing','style']);
-    (function walk(n) {
-        for (let i = n.children.length - 1; i >= 0; i--) {
-            const c = n.children[i];
-            if (c.tagName === 'SCRIPT' || c.tagName === 'STYLE') { c.remove(); continue; }
-            if (!ok.has(c.tagName.toLowerCase())) { c.replaceWith(document.createTextNode(c.textContent + ' ')); continue; }
-            for (let j = c.attributes.length - 1; j >= 0; j--) {
-                if (!okAttr.has(c.attributes[j].name.toLowerCase())) c.removeAttribute(c.attributes[j].name);
-            }
-            if (c.tagName === 'A') { c.setAttribute('target','_blank'); c.setAttribute('rel','noopener noreferrer'); }
-            walk(c);
-        }
-    })(wrap);
-    return wrap.innerHTML;
-}
+function goBack() { document.getElementById('app').className = ''; }
+function goBackList() { document.getElementById('app').className = 'view-list'; }
 
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', async () => {
-        try {
-            const reg = await navigator.serviceWorker.register('/static/sw.js');
-            console.log('[SW] registered:', reg.scope);
-        } catch(e) {
-            console.error('[SW] registration failed:', e);
-        }
-    });
-}
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if (e.key === 'c' || e.key === 'C') openCompose();
+  if (e.key === 'r' && currentMessage) openReply();
+  if (e.key === 'Escape') closeCompose();
+});
 
-let _prompt;
-const installBtn = document.getElementById('install-cta');
-const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+document.getElementById('composeOverlay').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeCompose();
+});
 
-if (!standalone) {
-    window.addEventListener('beforeinstallprompt', e => {
-        e.preventDefault();
-        _prompt = e;
-        installBtn.hidden = false;
-        installBtn.style.display = 'inline-flex';
-    });
-    installBtn.addEventListener('click', async () => {
-        if (!_prompt) return;
-        _prompt.prompt();
-        const { outcome } = await _prompt.userChoice;
-        if (outcome === 'accepted') { installBtn.hidden = true; installBtn.style.display = 'none'; }
-        _prompt = null;
-    });
-    window.addEventListener('appinstalled', () => {
-        installBtn.hidden = true;
-        installBtn.style.display = 'none';
-        _prompt = null;
-    });
-}
-
-setupResponsive();
-loadUserInfo();
-if (location.hash === '#compose') showCompose();
-else loadInbox();
+init();
 </script>
 </body>
 </html>
