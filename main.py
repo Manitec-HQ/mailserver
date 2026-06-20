@@ -18,9 +18,6 @@ from db import get_db, init_db
 from recovery_routes import router as recovery_router
 
 load_dotenv()
-CLIENT_ID = os.getenv("CLIENT_ID")
-CLIENT_SECRET = os.getenv("CLIENT_SECRET")
-REFRESH_TOKEN = os.getenv("REFRESH_TOKEN")
 MAIL_ADMIN = os.getenv("MAIL_ADMIN", "").strip().lower()
 
 BASE_URL = "https://mail360.zoho.com"
@@ -237,12 +234,41 @@ def get_current_user(request: Request):
     return user
 
 
+# ---------------------------------------------------------------------------
+# Zoho access-token cache — reuse token for 55 min, refresh only when expired
+# ---------------------------------------------------------------------------
+_token_cache: dict = {"access_token": None, "expires_at": 0}
+
+
 def get_access_token() -> str:
+    now = int(time.time())
+    if _token_cache["access_token"] and now < _token_cache["expires_at"]:
+        return _token_cache["access_token"]
+
+    # Read creds fresh from env every time so Render env changes take effect
+    # without needing a full redeploy
+    client_id = os.getenv("CLIENT_ID", "").strip()
+    client_secret = os.getenv("CLIENT_SECRET", "").strip()
+    refresh_token = os.getenv("REFRESH_TOKEN", "").strip()
+
+    if not client_id or not client_secret or not refresh_token:
+        raise HTTPException(status_code=500, detail="Missing Zoho credentials in environment")
+
     url = f"{BASE_URL}/api/access-token"
-    payload = {"refresh_token": REFRESH_TOKEN, "client_id": CLIENT_ID, "client_secret": CLIENT_SECRET}
+    payload = {
+        "refresh_token": refresh_token,
+        "client_id": client_id,
+        "client_secret": client_secret,
+    }
     resp = httpx.post(url, json=payload)
     resp.raise_for_status()
-    return resp.json()["data"]["access_token"]
+    token = resp.json()["data"]["access_token"]
+
+    # Cache for 55 minutes (Zoho tokens last 60 min)
+    _token_cache["access_token"] = token
+    _token_cache["expires_at"] = now + 55 * 60
+
+    return token
 
 
 def _fetch_folder(user: dict, search_key: str, limit: int) -> list:
