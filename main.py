@@ -268,6 +268,55 @@ def get_access_token() -> str:
     return token
 
 
+# ---------------------------------------------------------------------------
+# Folder ID cache — fetch once per account key, refresh every 6 hours
+# Maps account_key -> {folder_name_lower -> folderId, expires_at}
+# ---------------------------------------------------------------------------
+_folder_cache: dict[str, dict] = {}
+
+# Well-known Mail360 folder names (case-insensitive match against API response)
+_FOLDER_NAME_MAP = {
+    "inbox":  ["inbox"],
+    "sent":   ["sent", "sent items", "sent mail"],
+    "drafts": ["drafts", "draft"],
+    "trash":  ["trash", "deleted", "deleted items", "bin"],
+    "spam":   ["spam", "junk", "junk email"],
+}
+
+
+def get_folder_ids(account_key: str) -> dict[str, str]:
+    """
+    Returns a dict mapping logical folder names (inbox/sent/drafts/trash/spam)
+    to their Zoho folderId strings. Cached for 6 hours per account.
+    """
+    now = int(time.time())
+    cached = _folder_cache.get(account_key)
+    if cached and now < cached.get("expires_at", 0):
+        return cached["ids"]
+
+    token = get_access_token()
+    url = f"{BASE_URL}/api/accounts/{account_key}/folders"
+    headers = {"Authorization": f"Zoho-oauthtoken {token}"}
+    resp = httpx.get(url, headers=headers)
+    resp.raise_for_status()
+    folders = resp.json().get("data", [])
+
+    ids: dict[str, str] = {}
+    for folder in folders:
+        raw_name = (folder.get("folderName") or folder.get("name") or "").strip().lower()
+        folder_id = str(folder.get("folderId") or folder.get("id") or "")
+        if not folder_id:
+            continue
+        for logical, aliases in _FOLDER_NAME_MAP.items():
+            if raw_name in aliases:
+                ids[logical] = folder_id
+                break
+
+    _folder_cache[account_key] = {"ids": ids, "expires_at": now + 6 * 3600}
+    print(f"\u2705 Folder IDs loaded for {account_key}: {ids}")
+    return ids
+
+
 def _sort_key(msg: dict) -> int:
     """Return receivedTime as int for sorting; fall back to sentDateInGMT, then 0."""
     ts = msg.get("receivedTime") or msg.get("sentDateInGMT") or 0
@@ -277,12 +326,37 @@ def _sort_key(msg: dict) -> int:
         return 0
 
 
-def _fetch_folder(user: dict, search_key: str, limit: int) -> list:
-    """Shared helper: fetch messages from any Zoho folder by searchKey, sorted newest-first."""
+def _fetch_folder(user: dict, logical_folder: str, limit: int) -> list:
+    """
+    Fetch messages from a Zoho Mail360 folder using the correct folderId param.
+    logical_folder: one of inbox / sent / drafts / trash / spam / allmail
+    """
+    account_key = user["account_key"].strip()
     token = get_access_token()
-    url = f"{BASE_URL}/api/accounts/{user['account_key'].strip()}/messages"
     headers = {"Authorization": f"Zoho-oauthtoken {token}"}
-    resp = httpx.get(url, headers=headers, params={"searchKey": search_key, "limit": limit})
+
+    if logical_folder == "allmail":
+        # No folderId — fetch inbox + sent combined
+        url = f"{BASE_URL}/api/accounts/{account_key}/messages"
+        resp = httpx.get(url, headers=headers, params={"limit": limit, "includesent": "true"})
+        resp.raise_for_status()
+        data = resp.json().get("data", [])
+        return sorted(data, key=_sort_key, reverse=True)
+
+    folder_ids = get_folder_ids(account_key)
+    folder_id = folder_ids.get(logical_folder)
+
+    if not folder_id:
+        # Folder not found in cache — return empty with a clear error message
+        raise HTTPException(
+            status_code=404,
+            detail=f"Folder '{logical_folder}' not found in Zoho account. "
+                   f"Available folders: {list(folder_ids.keys())}"
+        )
+
+    url = f"{BASE_URL}/api/accounts/{account_key}/messages"
+    params = {"folderId": folder_id, "limit": limit, "sortorder": "false", "sortBy": "date"}
+    resp = httpx.get(url, headers=headers, params=params)
     resp.raise_for_status()
     data = resp.json().get("data", [])
     return sorted(data, key=_sort_key, reverse=True)
@@ -407,31 +481,57 @@ def get_me(request: Request):
 @app.get("/inbox")
 def get_inbox(request: Request, limit: int = 50):
     user = get_current_user(request)
-    return _fetch_folder(user, "in:inbox", limit)
+    return _fetch_folder(user, "inbox", limit)
 
 
 @app.get("/sent")
 def get_sent(request: Request, limit: int = 50):
     user = get_current_user(request)
-    return _fetch_folder(user, "in:sent", limit)
+    return _fetch_folder(user, "sent", limit)
 
 
 @app.get("/drafts")
 def get_drafts(request: Request, limit: int = 50):
     user = get_current_user(request)
-    return _fetch_folder(user, "in:drafts", limit)
+    return _fetch_folder(user, "drafts", limit)
 
 
 @app.get("/trash")
 def get_trash(request: Request, limit: int = 50):
     user = get_current_user(request)
-    return _fetch_folder(user, "in:trash", limit)
+    return _fetch_folder(user, "trash", limit)
 
 
 @app.get("/allmail")
 def get_allmail(request: Request, limit: int = 50):
     user = get_current_user(request)
-    return _fetch_folder(user, "in:anywhere", limit)
+    return _fetch_folder(user, "allmail", limit)
+
+
+# ---------------------------------------------------------------------------
+# Debug: list raw Zoho folder names + IDs (admin only)
+# ---------------------------------------------------------------------------
+
+@app.get("/folders")
+def list_folders(request: Request):
+    user = get_current_user(request)
+    if not is_admin(user):
+        raise HTTPException(status_code=403, detail="Admin only")
+    account_key = user["account_key"].strip()
+    token = get_access_token()
+    headers = {"Authorization": f"Zoho-oauthtoken {token}"}
+    resp = httpx.get(f"{BASE_URL}/api/accounts/{account_key}/folders", headers=headers)
+    resp.raise_for_status()
+    raw = resp.json().get("data", [])
+    # Also bust the folder cache so next request re-fetches
+    _folder_cache.pop(account_key, None)
+    return {
+        "raw_folders": [
+            {"name": f.get("folderName") or f.get("name"), "id": f.get("folderId") or f.get("id")}
+            for f in raw
+        ],
+        "resolved": get_folder_ids(account_key),
+    }
 
 
 @app.get("/message/{message_id}")
